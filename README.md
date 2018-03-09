@@ -1,1 +1,1 @@
-# PENScintAnalysis
+# PENScintAnalysis.jl
