@@ -7,6 +7,7 @@ DSP
 ElasticArrays
 MultiThreadingTools
 Plots
+RecipesBase
 SIS3316
 StatsBase
 UnsafeArrays

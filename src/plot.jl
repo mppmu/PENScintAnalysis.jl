@@ -12,6 +12,36 @@ end
 export plot_pulse_hist
 
 
+@userplot PlotPulseHist
+
+@recipe function f(p::PlotPulseHist; ybins = 1:1:0)
+    waveforms = p.args[1]
+
+    ybinning = if isempty(ybins)
+        samples = parent(waveforms)
+        linspace(minimum(samples), maximum(samples), 256)
+    else
+        ybins
+    end
+
+    @series begin
+        h = pulse_hist(waveforms, ybinning)
+        x := h.edges[1]
+        y := h.edges[2]
+        z := Surface(h.weights)
+        seriestype --> :bins2d
+        title --> "Signal Shapes"
+        label --> "Signal Overlay (All Signals)"
+        xlabel --> "Sample [4ns]"
+        ylabel --> "Counts"
+        ()
+    end
+end
+
+# export plot_pulse_hist2
+
+
+
 function plot_wfanalysis(wfanalysis::DataFrame)
     E_max = maximum(reduced_maximum.([
         wfanalysis[:peak_integral],

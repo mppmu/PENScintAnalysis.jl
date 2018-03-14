@@ -17,6 +17,7 @@ using DSP
 using ElasticArrays
 using MultiThreadingTools
 using Plots
+using RecipesBase
 using SIS3316
 using StatsBase
 using UnsafeArrays
