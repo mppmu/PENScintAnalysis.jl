@@ -7,8 +7,12 @@ export log10orNaN
 const Waveforms = AbstractVectorOfSimilarVectors{<:Real}
 export Waveforms
 
+const AFWaveforms{VF<:Function} = VectorOfSimilarVectors{<:Real,<:AFArray,VF}
+export AFWaveforms
+
 
 av(A::AbstractArray) = VectorOfSimilarArrays(A, view)
+av(A::AFArray) = VectorOfSimilarArrays(A, getindex)
 export av
 
 

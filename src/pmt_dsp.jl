@@ -75,6 +75,18 @@ function wf_range_sum(waveforms::Waveforms, r::AbstractUnitRange{<:Integer}, wei
     R
 end
 
+function wf_range_sum(waveforms::AFWaveforms, r::AbstractUnitRange{<:Integer}, weights::AFArray{<:Real})
+    # ToDo: Use ArrayFire.dot instead of mul and sum:
+    A = parent(waveforms)[r, :]
+    B = ArrayFire.mul(A, weights, true)
+    finalize(A)
+    C = sum(B, 1)
+    finalize(B)
+    R = C[:]
+    finalize(C)
+    R
+end
+
 wf_range_sum_simple(waveforms::Waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
     sum(parent(waveforms)[r, :] .* weights, 1)[:]
 

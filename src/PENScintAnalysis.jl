@@ -21,6 +21,9 @@ using SIS3316
 using StatsBase
 using UnsafeArrays
 
+import ArrayFire
+using ArrayFire: AFArray
+
 include("util.jl")
 include("read_raw_data.jl")
 include("pmt_dsp.jl")
