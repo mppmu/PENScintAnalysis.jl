@@ -51,7 +51,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
     plot(
         begin
             plot(
-                pulse_hist(wfanalysis[:waveforms], -20:1:100),
+                pulse_hist(wfanalysis[:waveform], -20:1:100),
                 color = :viridis,
                 title = "Signal Shapes",
                 label = "Signal Overlay (All Signals)",
@@ -60,7 +60,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
             )
             #=
             plot!(
-                mean(parent(wfanalysis[:waveforms]), 2)[:],
+                mean(parent(wfanalysis[:waveform]), 2)[:],
                 color = :red, linewidth = 2,
                 label = "Averaged Signal Shape",
                 xlabel = "Sample [4ns]",

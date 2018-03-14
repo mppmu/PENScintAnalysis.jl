@@ -7,7 +7,7 @@ function precalibrate_data(
 )
     timestamp = raw_data[:timestamp] .- first(raw_data[:timestamp])
 
-    int_waveforms = raw_data[:waveforms]
+    int_waveforms = raw_data[:waveform]
     waveforms = av(triangular_dither.(Float32, parent(int_waveforms)))
 
     orig_prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
@@ -23,7 +23,7 @@ function precalibrate_data(
         channel = raw_data[:channel],
         bufferno = raw_data[:bufferno],
         timestamp = timestamp,
-        waveforms = waveforms
+        waveform = waveforms
     )
 end
 
@@ -40,7 +40,7 @@ function analyse_waveforms(
 )
     # info("Mean event rate: $(1 / mean(diff(precal_data[:timestamp]))) events/s")
 
-    waveforms = precal_data[:waveforms]
+    waveforms = precal_data[:waveform]
 
     T = eltype(parent(waveforms))
 
@@ -61,7 +61,7 @@ function analyse_waveforms(
         channel = precal_data[:channel],
         bufferno = precal_data[:bufferno],
         timestamp = precal_data[:timestamp],
-        waveforms = waveforms,
+        waveform = waveforms,
         prebl_level = prebl_level,
         postbl_level = postbl_level,
         peak_integral = peak_integral,

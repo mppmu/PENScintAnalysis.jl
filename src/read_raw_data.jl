@@ -42,7 +42,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
         channel = channel,
         bufferno = bufferno,
         timestamp = timestamp,
-        waveforms = waveforms
+        waveform = waveforms
     )
 end
 
