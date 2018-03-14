@@ -1,2 +1,12 @@
 julia 0.6
+ArraysOfArrays
 Compat
+CompressedStreams
+DataFrames
+DSP
+ElasticArrays
+MultiThreadingTools
+Plots
+SIS3316
+StatsBase
+UnsafeArrays
