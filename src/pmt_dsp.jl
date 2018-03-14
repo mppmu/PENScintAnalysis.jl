@@ -59,7 +59,7 @@ export fastsum
 function wf_range_sum end
 export wf_range_sum
 
-function wf_range_sum(waveforms::Waveforms, r::AbstractUnitRange{<:Integer})
+function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
     R = Vector{eltype(parent(waveforms))}(uninitialized, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastsum(view(waveforms[i], r))
@@ -67,7 +67,7 @@ function wf_range_sum(waveforms::Waveforms, r::AbstractUnitRange{<:Integer})
     R
 end
 
-function wf_range_sum(waveforms::Waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
+function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
     R = Vector{eltype(parent(waveforms))}(uninitialized, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastvecdot(view(waveforms[i], r), weights)
@@ -75,19 +75,19 @@ function wf_range_sum(waveforms::Waveforms, r::AbstractUnitRange{<:Integer}, wei
     R
 end
 
-wf_range_sum_simple(waveforms::Waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
+wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
     sum(parent(waveforms)[r, :] .* weights, 1)[:]
 
 
 function wf_shift! end
 export wf_shift!
 
-function wf_shift!(output::Waveforms, input::Waveforms, x::Union{Real,Vector{<:Real}})
+function wf_shift!(output::WFSamples, input::WFSamples, x::Union{Real,Vector{<:Real}})
     parent(output) .= parent(input) .+ x'
     output
 end
 
-function wf_shift_simd!(output::Waveforms, input::Waveforms, x::Real)
+function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
     X = parent(output)
     A = parent(input)
 

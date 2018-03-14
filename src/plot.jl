@@ -1,4 +1,4 @@
-function plot_pulse_hist(waveforms::Waveforms, ybins::Range)
+function plot_pulse_hist(waveforms::WFSamples, ybins::Range)
     plot(
         pulse_hist(waveforms, ybins),
         color = :viridis,
@@ -25,15 +25,15 @@ export plot_pulse_hist
     end
 
     @series begin
+        n = length(linearindices(waveforms))
         h = pulse_hist(waveforms, ybinning)
         x := h.edges[1]
         y := h.edges[2]
         z := Surface(h.weights)
         seriestype --> :bins2d
-        title --> "Signal Shapes"
-        label --> "Signal Overlay (All Signals)"
-        xlabel --> "Sample [4ns]"
-        ylabel --> "Counts"
+        title --> "Signal Overlay ($n waveforms)"
+        xlabel --> "Time"
+        ylabel --> "Amplitude"
         ()
     end
 end

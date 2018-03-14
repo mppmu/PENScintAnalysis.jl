@@ -4,8 +4,8 @@ log10orNaN(x) = (x <= 0) ? typeof(x)(NaN) : log10(x)
 export log10orNaN
 
 
-const Waveforms = AbstractVectorOfSimilarVectors{<:Real}
-export Waveforms
+const WFSamples = AbstractVectorOfSimilarVectors{<:Real}
+export WFSamples
 
 
 av(A::AbstractArray) = VectorOfSimilarArrays(A, view)

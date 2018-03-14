@@ -11,7 +11,7 @@ end
 export reduced_maximum
 
 
-function pulse_hist(waveforms::Waveforms, yedge::Range)
+function pulse_hist(waveforms::WFSamples, yedge::Range)
     samples = parent(waveforms)
 
     xedge = axes(samples, 1)
