@@ -8,7 +8,7 @@ const WFSamples = AbstractVectorOfSimilarVectors{<:Real}
 export WFSamples
 
 
-av(A::AbstractArray) = VectorOfSimilarArrays(A, view)
+av(A::AbstractArray) = VectorOfSimilarArrays(A)
 export av
 
 
