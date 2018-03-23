@@ -35,7 +35,7 @@ function analyse_waveforms(
     prebl_range::UnitRange{Int} = 1:64,
     postbl_range::UnitRange{Int} = 385:512,
     peak_range::UnitRange{Int} = 245:(245 + 40),
-    peak_range_short::UnitRange{Int} = 252:(252 + 5),
+    peak_range_short::UnitRange{Int} = 251:(251 + 11),
     noise_range::UnitRange{Int} = 180:(180+60)
 )
     # info("Mean event rate: $(1 / mean(diff(precal_data[:timestamp]))) events/s")
