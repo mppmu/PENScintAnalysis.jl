@@ -5,7 +5,7 @@ version = "0.1.0"
 
 [deps]
 ArraysOfArrays = "65a8f2f4-9b39-5baf-92e2-a9cc46fdf018"
-BitOperations = "873d8b96-7e24-527c-9704-6c85acb1d67b"
+BitOperations = "e1e0eea2-bc69-5bf6-8574-13634873a17c"
 Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 CompressedStreams = "f401735c-f269-552a-a19c-c61c02b6882a"
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
