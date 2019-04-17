@@ -33,7 +33,7 @@ git-tree-sha1 = "3634f86e1cc423c182851c59c4a4b473608e5078"
 repo-rev = "dev"
 repo-url = "https://github.com/oschulz/BitOperations.jl"
 uuid = "873d8b96-7e24-527c-9704-6c85acb1d67b"
-version = "0.0.0"
+version = "0.1.0"
 
 [[CategoricalArrays]]
 deps = ["Compat", "Future", "Missings", "Printf", "Reexport", "Requires"]
