@@ -18,3 +18,12 @@ Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 SIS3316 = "e6ce62ec-21dd-50b1-a7fb-ee5abe804eba"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 UnsafeArrays = "c4a57d5a-5b31-53a6-b365-19f8c011fbd6"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
