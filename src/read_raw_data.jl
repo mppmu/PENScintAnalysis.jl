@@ -15,7 +15,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
             nbuffers = 0
             while !eof(input)
                 evtno > nevents && break
-                buffer = read(input, SIS3316.FileBuffer, tmpevtdata)
+                buffer = read(input, SIS3316Digitizers.FileBuffer, tmpevtdata)
                 nbuffers += 1
                 bufno = buffer.info.bufferno
 
@@ -36,7 +36,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
         end
     end
 
-    waveforms = av(wfmatrix)
+    waveforms = nestedview(wfmatrix)
 
     DataFrame(
         channel = channel,

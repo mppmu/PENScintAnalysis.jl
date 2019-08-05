@@ -18,7 +18,7 @@ using LinearAlgebra
 using ParallelProcessingTools
 using Plots
 using RecipesBase
-using SIS3316
+using SIS3316Digitizers
 using StatsBase
 using UnsafeArrays
 

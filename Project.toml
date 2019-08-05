@@ -15,7 +15,7 @@ ParallelProcessingTools = "8e8a01fc-6193-5ca1-a2f1-20776dae4199"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
-SIS3316 = "e6ce62ec-21dd-50b1-a7fb-ee5abe804eba"
+SIS3316Digitizers = "d1878dac-861e-11e9-0454-3b51f21b60a4"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 UnsafeArrays = "c4a57d5a-5b31-53a6-b365-19f8c011fbd6"
 
