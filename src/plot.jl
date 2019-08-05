@@ -1,4 +1,4 @@
-function plot_pulse_hist(waveforms::WFSamples, ybins::Range)
+function plot_pulse_hist(waveforms::WFSamples, ybins::StepRange)
     plot(
         pulse_hist(waveforms, ybins),
         color = :viridis,
@@ -18,7 +18,7 @@ export plot_pulse_hist
     waveforms = p.args[1]
 
     ybinning = if isempty(ybins)
-        samples = parent(waveforms)
+        samples = flatview(waveforms)
         linspace(minimum(samples), maximum(samples), 256)
     else
         ybins

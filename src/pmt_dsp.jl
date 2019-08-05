@@ -60,36 +60,36 @@ function wf_range_sum end
 export wf_range_sum
 
 function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
-    R = Vector{eltype(parent(waveforms))}(uninitialized, size(waveforms))
+    R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastsum(view(waveforms[i], r))
-    end 
+    end
     R
 end
 
 function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
-    R = Vector{eltype(parent(waveforms))}(uninitialized, size(waveforms))
+    R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastvecdot(view(waveforms[i], r), weights)
-    end 
+    end
     R
 end
 
 wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
-    sum(parent(waveforms)[r, :] .* weights, 1)[:]
+    sum(flatview(waveforms)[r, :] .* weights, 1)[:]
 
 
 function wf_shift! end
 export wf_shift!
 
 function wf_shift!(output::WFSamples, input::WFSamples, x::Union{Real,Vector{<:Real}})
-    parent(output) .= parent(input) .+ x'
+    flatview(output) .= flatview(input) .+ x'
     output
 end
 
 function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
-    X = parent(output)
-    A = parent(input)
+    X = flatview(output)
+    A = flatview(input)
 
     size(X) != size(A) && throw(DimensionMismatch("Input and output size differ"))
     eachindex(X) != eachindex(A) && throw(DimensionMismatch("Input and output indices are incompatible"))
@@ -97,7 +97,7 @@ function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
     onthreads(threads_all()) do
         @inbounds @simd for i in threadpartition(eachindex(X))
             X[i] = A[i] + x
-        end 
+        end
     end
 
     output

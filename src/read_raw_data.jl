@@ -4,7 +4,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
     channel = Vector{Int}()
     bufferno = Vector{Int}()
     timestamp = Vector{Float64}()
-    wfmatrix = ElasticArray{Int}(uninitialized, 1, 0)
+    wfmatrix = ElasticArray{Int}(undef, 1, 0)
     evtno = 0
 
     for filename in filenames
@@ -23,7 +23,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
                     evtno += 1
                     evtno > nevents && break
                     if length(wfmatrix) == 0
-                        wfmatrix = ElasticArray{Int}(uninitialized, length(evt.samples), 0)
+                        wfmatrix = ElasticArray{Int}(undef, length(evt.samples), 0)
                     end
                     push!(channel, evt.chid)
                     push!(bufferno, bufno)

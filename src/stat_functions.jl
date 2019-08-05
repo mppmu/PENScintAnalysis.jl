@@ -11,8 +11,8 @@ end
 export reduced_maximum
 
 
-function pulse_hist(waveforms::WFSamples, yedge::Range)
-    samples = parent(waveforms)
+function pulse_hist(waveforms::WFSamples, yedge::StepRange)
+    samples = flatview(waveforms)
 
     xedge = axes(samples, 1)
     ph = Histogram((xedge, yedge), Float64, :left)

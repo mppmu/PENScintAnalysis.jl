@@ -2,13 +2,13 @@
 
 function precalibrate_data(
     raw_data::DataFrame;
-    prebl_range::UnitRange{Int} = 1:64,
-    postbl_range::UnitRange{Int} = 385:512
+    prebl_range::UnitRange{Int} = 1:32,
+    postbl_range::UnitRange{Int} = 300:350
 )
     timestamp = raw_data[:timestamp] .- first(raw_data[:timestamp])
 
     int_waveforms = raw_data[:waveform]
-    waveforms = av(triangular_dither.(Float32, parent(int_waveforms)))
+    waveforms = av(triangular_dither.(Float32, flatview(int_waveforms)))
 
     orig_prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
     orig_postbl_level = wf_range_sum(waveforms, postbl_range, window_weights(hamming, postbl_range))
@@ -32,8 +32,8 @@ export precalibrate_data
 
 function analyse_waveforms(
     precal_data::DataFrame;
-    prebl_range::UnitRange{Int} = 1:64,
-    postbl_range::UnitRange{Int} = 385:512,
+    prebl_range::UnitRange{Int} = 1:32,
+    postbl_range::UnitRange{Int} = 300:350,
     peak_range::UnitRange{Int} = 245:(245 + 40),
     peak_range_short::UnitRange{Int} = 251:(251 + 11),
     noise_range::UnitRange{Int} = 180:(180+60)
@@ -42,7 +42,7 @@ function analyse_waveforms(
 
     waveforms = precal_data[:waveform]
 
-    T = eltype(parent(waveforms))
+    T = eltype(flatview(waveforms))
 
     prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
     postbl_level = wf_range_sum(waveforms, postbl_range, window_weights(hamming, postbl_range))
