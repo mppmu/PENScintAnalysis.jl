@@ -4,6 +4,7 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
     channel = Vector{Int}()
     bufferno = Vector{Int}()
     timestamp = Vector{Float64}()
+    trig_maw = Vector{SIS3316Digitizers.MAWValues}()
     wfmatrix = ElasticArray{Int}(undef, 1, 0)
     evtno = 0
 
@@ -27,7 +28,8 @@ function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typ
                     end
                     push!(channel, evt.chid)
                     push!(bufferno, bufno)
-                    push!(timestamp,time(evt))
+                    push!(timestamp, time(evt))
+                    push!(trig_maw, evt.trig_maw)
                     append!(wfmatrix, evt.samples)
                 end
                 # info("Read buffer $bufno, channel $chno with $(length(buffer.events)) events")

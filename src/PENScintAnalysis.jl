@@ -20,6 +20,7 @@ using Plots
 using RecipesBase
 using SIS3316Digitizers
 using StatsBase
+using StructArrays
 using UnsafeArrays
 
 include("util.jl")
