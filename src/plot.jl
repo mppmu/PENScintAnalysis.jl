@@ -25,7 +25,7 @@ export plot_pulse_hist
     end
 
     @series begin
-        n = length(linearindices(waveforms))
+        n = length(eachindex(waveforms))
         h = pulse_hist(waveforms, ybinning)
         x := h.edges[1]
         y := h.edges[2]
