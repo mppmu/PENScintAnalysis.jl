@@ -1,5 +1,11 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
+"""
+    read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typemax(Int))
+
+Read nevents of SIS3316 data from filename into DataFrame object.
+"""
+
 function read_raw_data(filenames::AbstractArray{<:AbstractString}, nevents = typemax(Int))
     channel = Vector{Int}()
     bufferno = Vector{Int}()

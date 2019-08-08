@@ -1,5 +1,18 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
+"""
+    precalibrate_data(raw_data::DataFrame; <keyword arguments>)
+
+Remove offset for timestamp and waveforms of input data.
+
+Shifts timestamps by value of first timestamp, such that the first event starts at 0.
+Calculates the mean value of the baseline then subtracts from ADC counts.
+
+# Arguements
+- `prebl_range::UnitRange{Int} = 1:32`: Range for the pre-trigger baseline.
+- `postbl_range::UnitRange{Int} = 300:350`: Range for the post-trigger baseline.
+"""
+
 function precalibrate_data(
     raw_data::DataFrame;
     prebl_range::UnitRange{Int} = 1:32,
@@ -29,6 +42,18 @@ end
 
 export precalibrate_data
 
+"""
+    analyse_waveforms(precal_data::DataFrame; <keyword arguments>)
+
+Compute integrals and related values for input waveforms.
+
+# Arguements
+- `prebl_range::UnitRange{Int} = 1:32`: Range for the pre-trigger baseline.
+- `postbl_range::UnitRange{Int} = 300:350`: Range for the post-trigger baseline.
+- `peak_range::UnitRange{Int} = 245:(245 + 40)`: Integral range for the peak.
+- `peak_range_short::UnitRange{Int} = 251:(251 + 11)`: Integral range for the peak, shorter than `peak_range`.
+- `noise_range::UnitRange{Int} = 180:(180+60)`: Range for expected noise.
+"""
 
 function analyse_waveforms(
     precal_data::DataFrame;
