@@ -1,5 +1,7 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
+"""
+"""
 function reduced_maximum(A::Array{<:Real})
     T = eltype(A)
     sorted_A = sort(A)
@@ -10,7 +12,8 @@ end
 
 export reduced_maximum
 
-
+"""
+"""
 function pulse_hist(waveforms::WFSamples, yedge::StepRange)
     samples = flatview(waveforms)
 

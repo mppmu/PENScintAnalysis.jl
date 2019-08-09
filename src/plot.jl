@@ -1,3 +1,8 @@
+"""
+    plot_pulse_hist(waveforms::WFSamples, ybins::StepRange)
+
+Overlay of waveforms, 2D histogram of pulse waveform, color representing frequency.
+"""
 function plot_pulse_hist(waveforms::WFSamples, ybins::StepRange)
     plot(
         pulse_hist(waveforms, ybins),
@@ -40,18 +45,22 @@ end
 
 # export plot_pulse_hist2
 
+"""
+    plot_wfanalysis(wfanalysis::DataFrame)
 
-
+Plot histograms of `wfanlysis.peak_integral`, `wfanlysis.peak_integral_short`
+distribution of pre / post pulse baselines and PSD parameters.
+"""
 function plot_wfanalysis(wfanalysis::DataFrame)
     E_max = maximum(reduced_maximum.([
-        wfanalysis[:peak_integral],
-        wfanalysis[:peak_integral_short]
+        wfanalysis.peak_integral,
+        wfanalysis.peak_integral_short
     ]))
 
     plot(
         begin
             plot(
-                pulse_hist(wfanalysis[:waveform], -20:1:100),
+                pulse_hist(wfanalysis.waveform, -20:1:100),
                 color = :viridis,
                 title = "Signal Shapes",
                 label = "Signal Overlay (All Signals)",
@@ -70,7 +79,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
         end,
         begin
             stephist(
-                wfanalysis[:peak_integral],
+                wfanalysis.peak_integral,
                 bins = linspace(0, E_max, 500),
                 yscale = :log10,
                 title = "Peak Integral",
@@ -79,7 +88,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
                 ylabel = "Counts"
             )
             stephist!(
-                wfanalysis[:peak_integral_short],
+                wfanalysis.peak_integral_short,
                 bins = linspace(0, E_max, 500),
                 yscale = :log10,
                 label = "Short window",
@@ -89,7 +98,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
         end,
         begin
             stephist(
-                wfanalysis[:postbl_level], yscale = :log10,
+                wfanalysis.postbl_level, yscale = :log10,
                 bins = -6:0.1:6,
                 title = "Post-Pulse Baseline Level",
                 label = "",
@@ -110,7 +119,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
         plot(
             fit(
                 Histogram,
-                (wfanalysis[:peak_integral], wfanalysis[:psa_speed]),
+                (wfanalysis.peak_integral, wfanalysis.psa_speed),
                 (linspace(0, E_max, 200), linspace(-0.2, 1.5, 200)), closed = :left
             ),
             color = :viridis,
@@ -123,7 +132,8 @@ end
 
 export plot_wfanalysis
 
-
+"""
+"""
 function plot_wfanalysis(pred::Function, wfanalysis::DataFrame, pred_cols::Symbol...)
     idxs = entrysel(pred, wfanalysis, pred_cols...)
     plot_wfanalysis(wfanalysis[idxs, :])
@@ -131,10 +141,14 @@ end
 
 export plot_wfanalysis
 
+"""
+    time_norm_hist(wfanalysis::DataFrame, col::Symbol, bins::AbstractVector)
 
+Rate normalized histogram of selected col of wfanalysis.
+"""
 function time_norm_hist(wfanalysis::DataFrame, col::Symbol, bins::AbstractVector)
     X = wfanalysis[col]
-    timestamp = wfanalysis[:timestamp]
+    timestamp = wfanalysis.timestamp
     rate = inv(maximum(timestamp) - minimum(timestamp))
     h = fit(Histogram{Float64}, X, bins, closed = :left)
     normalize!(h, mode = :density)

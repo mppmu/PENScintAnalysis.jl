@@ -12,15 +12,14 @@ Calculates the mean value of the baseline then subtracts from ADC counts.
 - `prebl_range::UnitRange{Int} = 1:32`: Range for the pre-trigger baseline.
 - `postbl_range::UnitRange{Int} = 300:350`: Range for the post-trigger baseline.
 """
-
 function precalibrate_data(
     raw_data::DataFrame;
     prebl_range::UnitRange{Int} = 1:32,
     postbl_range::UnitRange{Int} = 300:350
 )
-    timestamp = raw_data[:timestamp] .- first(raw_data[:timestamp])
+    timestamp = raw_data.timestamp .- first(raw_data.timestamp)
 
-    int_waveforms = raw_data[:waveform]
+    int_waveforms = raw_data.waveform
     waveforms = av(triangular_dither.(Float32, flatview(int_waveforms)))
 
     orig_prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
@@ -33,8 +32,8 @@ function precalibrate_data(
     wf_shift!(waveforms, waveforms, - orig_prebl_level)
 
     DataFrame(
-        channel = raw_data[:channel],
-        bufferno = raw_data[:bufferno],
+        channel = raw_data.channel,
+        bufferno = raw_data.bufferno,
         timestamp = timestamp,
         waveform = waveforms
     )
@@ -54,7 +53,6 @@ Compute integrals and related values for input waveforms.
 - `peak_range_short::UnitRange{Int} = 251:(251 + 11)`: Integral range for the peak, shorter than `peak_range`.
 - `noise_range::UnitRange{Int} = 180:(180+60)`: Range for expected noise.
 """
-
 function analyse_waveforms(
     precal_data::DataFrame;
     prebl_range::UnitRange{Int} = 1:32,
@@ -65,7 +63,7 @@ function analyse_waveforms(
 )
     # info("Mean event rate: $(1 / mean(diff(precal_data[:timestamp]))) events/s")
 
-    waveforms = precal_data[:waveform]
+    waveforms = precal_data.waveform
 
     T = eltype(flatview(waveforms))
 
@@ -83,9 +81,9 @@ function analyse_waveforms(
     psa_noise = noise_integral ./ peak_integral
 
     DataFrame(
-        channel = precal_data[:channel],
-        bufferno = precal_data[:bufferno],
-        timestamp = precal_data[:timestamp],
+        channel = precal_data.channel,
+        bufferno = precal_data.bufferno,
+        timestamp = precal_data.timestamp,
         waveform = waveforms,
         prebl_level = prebl_level,
         postbl_level = postbl_level,

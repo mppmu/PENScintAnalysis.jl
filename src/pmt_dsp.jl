@@ -1,5 +1,8 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
+"""
+"""
+
 function triangular_dither(T::Type{<:AbstractFloat}, x::Real, width::Real = one(typeof(x)))
     r = rand(T)
     tr = (r >= 0.5) ? - sqrt(2 - 2*r) + 1 : sqrt(2*r) - 1
@@ -8,6 +11,8 @@ end
 
 export triangular_dither
 
+"""
+"""
 
 function triangular_window(nrise::Integer, ntop::Integer)
     T = Float64
@@ -31,6 +36,8 @@ window_weights(window_function::Function, r::AbstractUnitRange{<:Integer}) =
 
 export window_weights
 
+"""
+"""
 
 function fastvecdot(x::AbstractVector, y::AbstractVector)
     eachindex(x) != eachindex(y) && throw(DimensionMismatch("Vector shapes differ"))
@@ -44,6 +51,8 @@ end
 
 export fastvecdot
 
+"""
+"""
 
 function fastsum(x::AbstractVector)
     s = zero(eltype(x))
@@ -59,6 +68,9 @@ export fastsum
 function wf_range_sum end
 export wf_range_sum
 
+"""
+"""
+
 function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
     @threads for i in eachindex(waveforms)
@@ -66,6 +78,9 @@ function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
     end
     R
 end
+
+"""
+"""
 
 function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
@@ -75,6 +90,9 @@ function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, wei
     R
 end
 
+"""
+"""
+
 wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
     sum(flatview(waveforms)[r, :] .* weights, 1)[:]
 
@@ -82,10 +100,16 @@ wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weigh
 function wf_shift! end
 export wf_shift!
 
+"""
+"""
+
 function wf_shift!(output::WFSamples, input::WFSamples, x::Union{Real,Vector{<:Real}})
     flatview(output) .= flatview(input) .+ x'
     output
 end
+
+"""
+"""
 
 function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
     X = flatview(output)

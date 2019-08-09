@@ -11,7 +11,8 @@ export WFSamples
 av(A::AbstractMatrix) = VectorOfSimilarVectors(A)
 export av
 
-
+"""
+"""
 function entrysel(predicate::Function, ds::DataFrame, colname::Symbol...)
     columns = map(c -> ds[c], colname)
     f(xs) = predicate(xs...)
