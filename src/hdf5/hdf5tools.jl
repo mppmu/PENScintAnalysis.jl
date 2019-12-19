@@ -1,3 +1,15 @@
+# This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
+
+"""
+            struck_to_h5(filename::String; conv_data_dir="../conv_data/")
+
+Read *.dat struck data file and stores it as HDF5 (LegendHDF5IO formatting). Array of filenames is also accepted.
+...
+# Arguments
+- `filename::String`: Path to *.dat file.
+- `nevents::Int`: Number of events to read in. Default: all events.
+...
+"""
 function struck_to_h5(filename::String; conv_data_dir="../conv_data/")
     if !isfile(filename)
         return "File does not exist: "*filename
@@ -88,5 +100,71 @@ function getUserInput(T=String,msg="")
             println("Sorry, I could not interpret your answer. Please try again")
             getUserInput(T,msg)
         end
+    end
+end
+
+
+
+"""
+            read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsubfiles::Int=typemax(Int), subfiles=[])
+
+Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
+...
+# Arguments
+- `filename::String`: Path to *.h5 file with old formatting as a string.
+- `nevents::Int`: Number of events to read in. Default: all events.
+- `nsubfiles::Int`: Number of subfiles to read in. Default: all.
+- `subfiles`: Array of indices of subfiles to read in. Default: empty = all.
+
+...
+"""
+function read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsubfiles::Int=typemax(Int), subfiles=[])
+    h5open(filename, "r") do h5f
+        tt = Table(
+            chid = Int32[],
+            timestamp = Float64[],
+            samples   = VectorOfArrays(Array{Int32,1}[]),
+            ) 
+        n1 = 0
+        n2 = 0
+        nbreak  = false
+        entries = names(h5f)
+        if nsubfiles >= length(entries)
+            p_max = length(entries)
+        else
+            p_max = nsubfiles
+        end
+        if length(subfiles) < p_max
+            p_max = length(subfiles)
+        end
+        if length(subfiles) == 0
+            subfiles = 1:1:length(entries)
+        end
+        
+        p = Progress(p_max, dt=0.5,
+                 barglyphs=BarGlyphs('|','█', ['▁' ,'▂' ,'▃' ,'▄' ,'▅' ,'▆', '▇'],' ','|',),
+                 barlen=10)
+        for entry in entries[subfiles]
+            temp   = read(h5f[entry])
+            pulses = Array{Int32,1}[]
+            i = 1
+            while i <= length(temp["chid"])
+                push!(pulses, temp["samples"][i, :])
+                i += 1
+                n1 += 1
+                if n1 == nevents
+                    nbreak = true
+                    break
+                end
+            end
+
+            append!(tt, Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=VectorOfArrays(pulses)))
+            next!(p)
+            n2 += 1
+            if nbreak || n2 == nsubfiles
+                break
+            end
+        end
+        return tt
     end
 end
