@@ -14,4 +14,5 @@ RecipesBase
 SIS3316Digitizers
 StatsBase
 StructArrays
+TypedTables
 UnsafeArrays
