@@ -49,6 +49,8 @@ The TypedTable can be stored directly to an HDF5 file and read in using:
 - `writeh5(filename::String, typed_table)`
 - `readh5(filename::String)`
 
+Please note: When storing e.g. an array of pulses use: `VectorOfArrays(YOUR_ARRAY_OF_PULSES)` 
+
 You can also convert directly from *.dat to *.h5 using:
 
 - `struck_to_h5(filename::String; conv_data_dir="../conv_data/")`
