@@ -1,0 +1,17 @@
+Base.Threads
+Compat
+ArraysOfArrays
+BitOperations
+CompressedStreams
+DataFrames
+DSP
+ElasticArrays
+LegendHDF5IO
+LinearAlgebra
+ParallelProcessingTools
+Plots
+RecipesBase
+SIS3316Digitizers
+StatsBase
+StructArrays
+UnsafeArrays

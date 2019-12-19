@@ -29,7 +29,7 @@ export triangular_window
 
 
 window_weights(window_function::Function, n::Integer) =
-    LinearAlgebra.normalize(window_function(n), 1)
+    normalize(window_function(n), 1)
 
 window_weights(window_function::Function, r::AbstractUnitRange{<:Integer}) =
     window_weights(window_function, length(r))

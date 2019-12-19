@@ -15,6 +15,8 @@ using DataFrames
 using DSP
 using ElasticArrays
 using LinearAlgebra
+using LegendHDF5IO
+using LegendHDF5IO: readdata, writedata
 using ParallelProcessingTools
 using Plots
 using RecipesBase
@@ -23,12 +25,20 @@ using StatsBase
 using StructArrays
 using UnsafeArrays
 
-include("util.jl")
-include("read_raw_data.jl")
+include("util/util.jl")
+include("struck/read_raw_data.jl")
+include("struck/take_struck_data.jl")
+include("hdf5/hdf5tools.jl")
 include("pmt_dsp.jl")
-include("stat_functions.jl")
-include("dataproc.jl")
-include("plot.jl")
+include("util/stat_functions.jl")
+include("util/dataproc.jl")
+include("util/plot.jl")
+include("algorithms/findLocalMaxima.jl")
+include("algorithms/getBaseline.jl")
+include("algorithms/peakIntegral.jl")
+include("algorithms/wfIntegral.jl")
+
+export getUserInput, readh5, read_data_from_struck, read_raw_data, struck_to_h5, findLocalMaxima, getBaseline, peakIntegral, wfIntegral
 
 end # module
 
