@@ -70,7 +70,11 @@ function readh5(filename::String)
     
 end
 
-
+function writeh5(filename::String, typed_table)
+    HDF5.h5open(filename, "w") do h5f
+        LegendHDF5IO.readdata( h5f, "data", typed_table)
+    end
+end
 
 
 function getUserInput(T=String,msg="")
