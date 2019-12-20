@@ -14,7 +14,7 @@ Both accept a single string as input or an array of strings for the file paths. 
 ## Read "old formatted" HDF5 files
 `read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsubfiles::Int=typemax(Int), subfiles=[])`
 
-Reads the outdated dataformat. Outdated means **non-LegendHDF5IO compatible**.
+Reads the outdated dataformat. Outdated means **non-LegendHDF5IO compatible**. You can see what is in one of those files by using `get_h5_info_old(filename::String)`.
 
 ### Arguments
 - `filename::String`: Path to *.h5 file with old formatting as a string.
