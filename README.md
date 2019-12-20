@@ -33,6 +33,23 @@ Or you read in the data as before and store it using `writeh5(filename::String, 
 
 **Please note that you can't store an array of vectors/arrays in HDF5! You have to convert that array with `VectorOfArrays(ARRAY)` first.**
 
+### Example
+
+```julia
+filename  = "path/to/h5/file.h5"
+file_info = get_h5_info_old(filename)
+i     = 1
+i_max = length(file_info["names"])
+
+while i <= i_max
+    data = read_old_h5_structure(filename, subfiles=[i])
+    # Do analysis separate for each subfile to avoid OutOfMemory() issues
+    i += 1
+end
+```
+
+
+
 ## Take data with the Struck ADC
 
 Use:
@@ -44,19 +61,22 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 - `settings::NamedTuple`: NamedTuple containing all settings. See Example.
 
 ### Example settings
-- `settings = (fadc = "gelab-fadc08",` 
-`output_basename = "test-measurement",`
-`data_dir = "../data/",`
-`conv_data_dir = "../conv_data/",`
-`measurement_time = 20,`
-`number_of_measurements = 5,`
-`channels = [1,2,3,4,5,6],`
-`trigger_threshold = [55],`
-`trigger_pmt = [5,6],`
-`peakTime = 2,`
-`gapTime = 2, `
-`nPreTrig = 192,`
-`nSamples = 256,`
-`saveEnergy = true,`
-`delete_dat = true`
-`) `
+
+```julia
+settings = (fadc = "gelab-fadc08",
+output_basename = "test-measurement",
+data_dir = "../data/",
+conv_data_dir = "../conv_data/",
+measurement_time = 20,
+number_of_measurements = 5,
+channels = [1,2,3,4,5,6],
+trigger_threshold = [55],
+trigger_pmt = [5,6],
+peakTime = 2,
+gapTime = 2, 
+nPreTrig = 192,
+nSamples = 256,
+saveEnergy = true,
+delete_dat = true
+) 
+```
