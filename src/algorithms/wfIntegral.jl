@@ -2,7 +2,7 @@
 function to compute the integral of a waveform, probably can be replace by sum julia function but some cuts are planned to be included...
 ...
 # Arguments
-- signal::Vector: Wavefor to be analyzed
+- signal::Vector: Waveform to be analyzed
 ...
 """
 
@@ -17,4 +17,6 @@ function wfIntegral(signal::Vector)
     integral
 end
 
-
+function wfIntegral(signal)
+    return sum( signal )
+end

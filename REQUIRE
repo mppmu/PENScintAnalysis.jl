@@ -10,9 +10,9 @@ LegendHDF5IO
 LinearAlgebra
 ParallelProcessingTools
 Plots
+Query
 RecipesBase
 SIS3316Digitizers
 StatsBase
 StructArrays
-TypedTables
 UnsafeArrays

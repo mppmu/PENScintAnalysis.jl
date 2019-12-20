@@ -19,11 +19,11 @@ using LegendHDF5IO
 using LegendHDF5IO: readdata, writedata
 using ParallelProcessingTools
 using Plots
+using Query
 using RecipesBase
 using SIS3316Digitizers
 using StatsBase
 using StructArrays
-using TypedTables
 using UnsafeArrays
 
 include("util/util.jl")
@@ -39,7 +39,15 @@ include("algorithms/getBaseline.jl")
 include("algorithms/peakIntegral.jl")
 include("algorithms/wfIntegral.jl")
 
-export getUserInput, readh5, read_data_from_struck, read_raw_data, struck_to_h5, findLocalMaxima, getBaseline, peakIntegral, wfIntegral
+
+# Struck related
+export read_data_from_struck, read_raw_data, struck_to_h5
+
+# HDF5 related
+export get_h5_info_old, getUserInput, readh5, read_old_h5_structure, writeh5
+
+# Luis functions
+export findLocalMaxima, getBaseline, peakIntegral, wfIntegral
 
 end # module
 

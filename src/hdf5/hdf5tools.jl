@@ -104,9 +104,35 @@ function getUserInput(T=String,msg="")
 end
 
 
+"""
+            get_h5_info_old(filename::String)
+
+Gives information about a file in the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
+Retruns `names` of the subfiles, the number of pulses `nevents` and the `substructure` of these files.
+...
+# Arguments
+- `filename::String`: Path to *.h5 file with old formatting as a string.
+
+...
+"""
+function get_h5_info_old(filename::String)
+    h5open(filename) do h5f
+        info = Dict()
+        info["names"]        = names(h5f)
+        info["nevents"]      = []
+        info["substructure"] = names(h5f[ info["names"][1] ])
+        for i in info["names"]
+            substruct = names(h5f[ i ])
+            push!(info["nevents"], length(read( h5f[ i ][ substruct[1] ] )))
+        end
+        return info
+    end
+end
+
+
 
 """
-            read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsubfiles::Int=typemax(Int), subfiles=[])
+            read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
 
 Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
 ...
@@ -115,10 +141,11 @@ Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
 - `nevents::Int`: Number of events to read in. Default: all events.
 - `nsubfiles::Int`: Number of subfiles to read in. Default: all.
 - `subfiles`: Array of indices of subfiles to read in. Default: empty = all.
+- `chids`: Array of channels you want to read. Default: empty = all. Starts at 0.
 
 ...
 """
-function read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsubfiles::Int=typemax(Int), subfiles=[])
+function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
     h5open(filename, "r") do h5f
         tt = Table(
             chid = Int32[],
@@ -165,6 +192,14 @@ function read_old_h5_structure(filename::String; nevents::Int=typemax(Int), nsub
                 break
             end
         end
-        return tt
+        if chids == []
+            chids = unique(tt.chid)
+        end
+        
+        tt_ch = Dict()
+        for ch in chids
+            tt_ch[string(ch)] = tt |> @select(:chid, :timestamp, :samples) |> @filter(_.chid == ch) |> Table;
+        end
+        return tt_ch
     end
 end
