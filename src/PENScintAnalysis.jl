@@ -24,6 +24,7 @@ using RecipesBase
 using SIS3316Digitizers
 using StatsBase
 using StructArrays
+using TypedTables
 using UnsafeArrays
 
 include("util/util.jl")
