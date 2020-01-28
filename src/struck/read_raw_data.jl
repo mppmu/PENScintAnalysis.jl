@@ -1,31 +1,23 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
 """
-        read_data_from_struck(filename:String; just_evt_t=false)
+        read_data_from_struck(filename:String)
 
 Reads one (or array of) Struck (*.dat) file(s) and returns a Named Table. Keys: samples, chid, evt_t, energy
 ...
-# Arguments
+# Argument
 - `filename::String`: Path to *.dat file as a string. Or array of path to *.dat files as strings.
-- `just_evt_t::Boolean=false`: If this is set to `true` the function will only return the timestamps.
 ...
 """
-function read_data_from_struck(filename::String; just_evt_t=false)
+function read_data_from_struck(filename::String)
 
+    evt_t   = Float64[]
+    samples = Array{Int32,1}[]
+    chid    = Int32[]
+    energy  = []
+        
     input = open(CompressedFile(filename))
     reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents)
-    if just_evt_t
-        df = DataFrame(
-          evt_t   = Float64[]
-        )
-    else
-        df = DataFrame(
-            evt_t   = Float64[],
-            samples = Array{Int32,1}[],
-            chid    = Int32[],
-            energy  = []
-        )
-    end
 
     sorted = 0
     nchunks = 0
@@ -36,52 +28,29 @@ function read_data_from_struck(filename::String; just_evt_t=false)
         #return sorted
         for evt in eachindex(sorted)
             ch = collect(keys(sorted[evt]))[1]
-            if just_evt_t
-                push!(df, time(sorted[evt][ch]))
-            else
-                push!(df, (time(sorted[evt][ch]), sorted[evt][ch].samples, sorted[evt][ch].chid, sorted[evt][ch].energy))
-            end
-
+            push!(evt_t, time(sorted[evt][ch]))
+            push!(samples, sorted[evt][ch].samples)
+            push!(chid, sorted[evt][ch].chid + 1)
+            push!(energy, sorted[evt][ch].energy)
         end
         empty!(sorted)
     end
     close(input)
-    if just_evt_t
-        return (evt_t = df.evt_t)
-    else
-        return (evt_t = df.evt_t, samples = VectorOfArrays(df.samples), chid = df.chid)#, energy = df.energy)
-    end
+    return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
 end
 
-function read_data_from_struck(filenames; just_evt_t=false)
-    if just_evt_t
-        df_all = DataFrame(
-          evt_t   = Float64[]
-        )
-    else
-        df_all = DataFrame(
-            evt_t   = Float64[],
-            samples = Array{Int32,1}[],
-            chid    = Int32[],
-            energy  = []
-        )
-    end
+
+function read_data_from_struck(filenames)
+
+    evt_t   = Float64[]
+    samples = Array{Int32,1}[]
+    chid    = Int32[]
+    energy  = []
+    
     for filename in filenames
         input = open(CompressedFile(filename))
-        reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents)
-        if just_evt_t
-            df = DataFrame(
-              evt_t   = Float64[]
-            )
-        else
-            df = DataFrame(
-                evt_t   = Float64[],
-                samples = Array{Int32,1}[],
-                chid    = Int32[],
-                energy  = []
-            )
-        end
-        
+        reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents) 
+
         sorted = 0
         nchunks = 0
 
@@ -91,23 +60,16 @@ function read_data_from_struck(filenames; just_evt_t=false)
             #return sorted
             for evt in eachindex(sorted)
                 ch = collect(keys(sorted[evt]))[1]
-                if just_evt_t
-                    push!(df, time(sorted[evt][ch]))
-                else
-                    push!(df, (time(sorted[evt][ch]), sorted[evt][ch].samples, sorted[evt][ch].chid, sorted[evt][ch].energy))
-                end
-
+                push!(evt_t, time(sorted[evt][ch]))
+                push!(samples, sorted[evt][ch].samples)
+                push!(chid, sorted[evt][ch].chid + 1)
+                push!(energy, sorted[evt][ch].energy)
             end
             empty!(sorted)
         end
         close(input)
-        append!(df_all, df)
     end
-    if just_evt_t
-        return (evt_t = df_all.evt_t)
-    else
-        return (evt_t = df_all.evt_t, samples = VectorOfArrays(df_all.samples), chid = df_all.chid)#, energy = df.energy)
-    end
+    return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
 end
 
 
