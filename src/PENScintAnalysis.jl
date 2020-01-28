@@ -31,6 +31,7 @@ using UnsafeArrays
 include("util/util.jl")
 include("struck/read_raw_data.jl")
 include("struck/take_struck_data.jl")
+include("struck/create_struck_daq_file.jl")
 include("hdf5/hdf5tools.jl")
 include("pmt_dsp.jl")
 include("util/stat_functions.jl")
@@ -43,7 +44,7 @@ include("algorithms/wfIntegral.jl")
 
 
 # Struck related
-export read_data_from_struck, read_raw_data, struck_to_h5
+export create_struck_daq_file, read_data_from_struck, read_raw_data, struck_to_h5
 
 # HDF5 related
 export get_h5_info_old, getUserInput, readh5, read_old_h5_structure, writeh5
