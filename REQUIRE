@@ -6,6 +6,7 @@ CompressedStreams
 DataFrames
 DSP
 ElasticArrays
+HDF5
 LegendHDF5IO
 LinearAlgebra
 ParallelProcessingTools
