@@ -49,8 +49,8 @@ val nPreTrig = 128
 val nSamples = 256
 
 def configureADC_hpge(): Unit = {
-  adc.trigger_intern_gen_set(pmt_1 --> true)
-  adc.trigger_intern_feedback_set(pmt_1-->true)
+  adc.trigger_intern_gen_set(trig_pmt --> true)
+  adc.trigger_intern_feedback_set(trig_pmt-->true)
   adc.trigger_extern_enabled_set(all_pmts --> true)
 
   adc.input_invert_set(trig_pmt --> true)
