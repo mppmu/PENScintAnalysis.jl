@@ -14,6 +14,7 @@ using CompressedStreams
 using DataFrames
 using DSP
 using ElasticArrays
+using HDF5
 using LinearAlgebra
 using LegendHDF5IO
 using LegendHDF5IO: readdata, writedata
