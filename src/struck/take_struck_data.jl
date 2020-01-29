@@ -14,8 +14,8 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 `measurement_time = 20,`
 `number_of_measurements = 5,`
 `channels = [1,2,3,4,5,6],`
-`trigger_threshold = [55],`
-`trigger_pmt = [5,6],`
+`trigger_threshold = 55,`
+`trigger_pmt = 5,`
 `peakTime = 2,`
 `gapTime = 2, `
 `nPreTrig = 192,`
