@@ -45,10 +45,10 @@ function take_struck_data(settings::NamedTuple)
     end
     #rm("pmt_daq_"*timestamp*".scala")
     cd(current_dir)
-    glob_str = settings.data_dir*"*"*settings.output_basename*"*.dat"
-    convert_dset_to_h5(glob_str, 
-        settings.output_basename, 
-        conv_data_dir = settings.conv_data_dir,
-        delete        = settings.delete_dat)
+    #glob_str = settings.data_dir*"*"*settings.output_basename*"*.dat"
+    #convert_dset_to_h5(glob_str, 
+    #    settings.output_basename, 
+    #    conv_data_dir = settings.conv_data_dir,
+    #    delete        = settings.delete_dat)
     #chmod("./", 0o777)
 end
