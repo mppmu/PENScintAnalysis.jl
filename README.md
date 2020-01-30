@@ -77,6 +77,7 @@ gapTime = 2,
 nPreTrig = 192,
 nSamples = 256,
 saveEnergy = true,
-delete_dat = true
+delete_dat = true,
+h5_filesize_limit = 200
 ) 
 ```
