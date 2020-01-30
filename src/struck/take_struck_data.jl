@@ -36,7 +36,7 @@ function take_struck_data(settings::NamedTuple)
     cd(settings.data_dir)
     timestamp = create_struck_daq_file(settings)
 
-    
+    chmod(pwd(), 0o777, recursive=true)
     i = 1
     while i <= settings.number_of_measurements
         #chmod("./", 0o777)
@@ -51,4 +51,5 @@ function take_struck_data(settings::NamedTuple)
     #    conv_data_dir = settings.conv_data_dir,
     #    delete        = settings.delete_dat)
     #chmod("./", 0o777)
+    chmod(pwd(), 0o777, recursive=true)
 end
