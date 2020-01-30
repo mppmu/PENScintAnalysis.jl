@@ -20,12 +20,14 @@ using LinearAlgebra
 using LegendHDF5IO
 using LegendHDF5IO: readdata, writedata
 using ParallelProcessingTools
+using ProgressMeter
 using Plots
 using Query
 using RecipesBase
 using SIS3316Digitizers
 using StatsBase
 using StructArrays
+using Suppressor
 using TypedTables
 using UnsafeArrays
 
