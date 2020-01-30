@@ -34,7 +34,8 @@ function take_struck_data(settings::NamedTuple)
     end
     current_dir = pwd()
     cd(settings.data_dir)
-    timestamp = create_struck_daq_file(settings)
+    create_struck_daq_file(settings)
+    t_start = stat("pmt_daq_dont_move.scala").mtime
     p = Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
     chmod(pwd(), 0o777, recursive=true)
     i = 1
@@ -44,13 +45,45 @@ function take_struck_data(settings::NamedTuple)
         next!(p)
         i += 1
     end
-    #rm("pmt_daq_"*timestamp*".scala")
-    cd(current_dir)
-    #glob_str = settings.data_dir*"*"*settings.output_basename*"*.dat"
-    #convert_dset_to_h5(glob_str, 
-    #    settings.output_basename, 
-    #    conv_data_dir = settings.conv_data_dir,
-    #    delete        = settings.delete_dat)
-    #chmod("./", 0o777)
     chmod(pwd(), 0o777, recursive=true)
+    files = glob(settings.output_basename*"*.dat")
+    new_files = []
+    i = 1
+    while i <= length(files)
+        if stat(files[i]).mtime - t_start > 0
+            push!(new_files, files[i])
+        end
+        i += 1
+    end
+    
+    limit   = 150
+    h5size  = 0
+    h5files = []
+    i = 1
+    while i <= length(new_files)
+        compress = [i]
+        h5size   = stat(new_files[i]).size/1024^2
+         i += 1
+        if i <= length(new_files)
+            while h5size <= limit && i <= length(new_files)
+                h5size += stat(new_files[i]).size/1024^2
+                push!(compress, i)
+                i += 1
+            end
+        end
+        push!(h5files, compress)
+    end
+    i = 1
+    p = Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
+    while i <= length(h5files)
+        data = read_data_from_struck(files[h5files[i]])
+        writeh5(joinpath(settings.conv_data_dir, basename(new_files[h5files[i][1]])*".h5"), data)
+        next!(p)
+        i += 1
+    end
+    rm("pmt_daq_dont_move.scala")
+    cd(settings.conv_data_dir)
+    chmod(pwd(), 0o777, recursive=true)
+    
+    cd(current_dir)
 end
