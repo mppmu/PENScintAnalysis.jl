@@ -35,12 +35,13 @@ function take_struck_data(settings::NamedTuple)
     current_dir = pwd()
     cd(settings.data_dir)
     timestamp = create_struck_daq_file(settings)
-
+    p = Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
     chmod(pwd(), 0o777, recursive=true)
     i = 1
     while i <= settings.number_of_measurements
         #chmod("./", 0o777)
-        run(`./pmt_daq_dont_move.scala`);    
+        @suppress run(`./pmt_daq_dont_move.scala`);
+        next!(p)
         i += 1
     end
     #rm("pmt_daq_"*timestamp*".scala")
