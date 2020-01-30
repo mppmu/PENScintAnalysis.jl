@@ -11,10 +11,12 @@ LegendHDF5IO
 LinearAlgebra
 ParallelProcessingTools
 Plots
+ProgressMeter
 Query
 RecipesBase
 SIS3316Digitizers
 StatsBase
 StructArrays
+Suppressor
 TypedTables
 UnsafeArrays
