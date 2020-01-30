@@ -47,7 +47,7 @@ include("algorithms/wfIntegral.jl")
 
 
 # Struck related
-export create_struck_daq_file, read_data_from_struck, read_raw_data, struck_to_h5
+export create_struck_daq_file, read_data_from_struck, read_raw_data, struck_to_h5, take_struck_data
 
 # HDF5 related
 export get_h5_info_old, getUserInput, readh5, read_old_h5_structure, writeh5
