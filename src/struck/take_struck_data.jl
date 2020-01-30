@@ -82,6 +82,13 @@ function take_struck_data(settings::NamedTuple)
         next!(p)
         i += 1
     end
+    if settings.delete_dat
+        i = 1
+        while i <= length(new_files)
+             rm(new_files[i])
+             i += 1
+        end
+    end
     rm("pmt_daq_dont_move.scala")
     cd(settings.conv_data_dir)
     chmod(pwd(), 0o777, recursive=true)
