@@ -10,7 +10,11 @@ Reads one (or array of) Struck (*.dat) file(s) and returns a Named Table. Keys: 
 ...
 """
 function read_data_from_struck(filename::String)
-
+    
+    if split(filename, ".")[end] != "dat"
+            println("Wrong fileformat!")
+            return []
+    end
     evt_t   = Float64[]
     samples = Array{Int32,1}[]
     chid    = Int32[]
@@ -43,7 +47,10 @@ end
 
 
 function read_data_from_struck(filenames)
-
+    if split(filenames[1], ".")[end] != "dat"
+            println("Wrong fileformat!")
+            return []
+    end
     evt_t   = Float64[]
     samples = Array{Int32,1}[]
     chid    = Int32[]
