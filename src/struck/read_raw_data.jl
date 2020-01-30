@@ -27,11 +27,13 @@ function read_data_from_struck(filename::String)
         sorted = sortevents(unsorted)
         #return sorted
         for evt in eachindex(sorted)
-            ch = collect(keys(sorted[evt]))[1]
-            push!(evt_t, time(sorted[evt][ch]))
-            push!(samples, sorted[evt][ch].samples)
-            push!(chid, sorted[evt][ch].chid + 1)
-            push!(energy, sorted[evt][ch].energy)
+            channels = collect(keys(sorted[evt]))
+            for ch in channels
+                push!(evt_t, time(sorted[evt][ch]))
+                push!(samples, sorted[evt][ch].samples)
+                push!(chid, sorted[evt][ch].chid + 1)
+                push!(energy, sorted[evt][ch].energy)
+            end
         end
         empty!(sorted)
     end
