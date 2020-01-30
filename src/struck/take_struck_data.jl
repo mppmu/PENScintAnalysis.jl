@@ -77,7 +77,7 @@ function take_struck_data(settings::NamedTuple)
     i = 1
     p = Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
     while i <= length(h5files)
-        data = read_data_from_struck(files[h5files[i]])
+        data = read_data_from_struck(new_files[h5files[i]])
         writeh5(joinpath(settings.conv_data_dir, basename(new_files[h5files[i][1]])*".h5"), data)
         next!(p)
         i += 1
