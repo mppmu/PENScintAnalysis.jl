@@ -35,7 +35,7 @@ function create_struck_daq_file(settings::NamedTuple)
                 i += 1
                 temp[i] = "val trig_pmt = " * string(settings.trigger_pmt)
                 i += 1
-                other_pmt = "val other_pmt = Ch("
+                other_pmt = "val other_pmts = Ch("
                 j = 1
                 while j <= length(settings.channels)
                     if settings.channels[j] != settings.trigger_pmt
