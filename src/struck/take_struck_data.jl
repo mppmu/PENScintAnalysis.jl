@@ -21,7 +21,8 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 `nPreTrig = 192,`
 `nSamples = 256,`
 `saveEnergy = true,`
-`delete_dat = true`
+`delete_dat = true,`
+`h5_filesize_limit = 200`
 `) `
 ...
 """
@@ -56,7 +57,7 @@ function take_struck_data(settings::NamedTuple)
         i += 1
     end
     
-    limit   = 150
+    limit   = settings.h5_filesize_limit
     h5size  = 0
     h5files = []
     i = 1
