@@ -17,11 +17,11 @@ object logger extends Logging
 logger.info("Ready")
 
 
-if (args.size != 3) throw new RuntimeException("Invalid number of command line arguments")
+//if (args.size != 3) throw new RuntimeException("Invalid number of command line arguments")
 
 val adcHostname = "gelab-fadc08"
-val outputBasename = args(1)
-val measurementTime = args(2).toInt
+val outputBasename = "test-measurement"
+val measurementTime = 5
 
 logger.info("ADC hostname: $adcHostname")
 logger.info("Output basename: $outputBasename")
