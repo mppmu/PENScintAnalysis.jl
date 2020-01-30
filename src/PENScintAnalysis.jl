@@ -38,6 +38,7 @@ include("struck/take_struck_data.jl")
 include("struck/create_struck_daq_file.jl")
 include("hdf5/hdf5tools.jl")
 include("pmt_dsp.jl")
+include("6pmt_util/events.jl")
 include("util/stat_functions.jl")
 include("util/dataproc.jl")
 include("util/plot.jl")
@@ -55,6 +56,9 @@ export get_h5_info_old, getUserInput, readh5, read_old_h5_structure, writeh5
 
 # Luis functions
 export findLocalMaxima, getBaseline, peakIntegral, wfIntegral
+
+# 6-PMT setup related functions
+export sort_by_events
 
 end # module
 
