@@ -33,6 +33,12 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     if !isdir(settings.conv_data_dir)
         mkpath(settings.conv_data_dir, mode = 0o777)
     end
+    if !calibration_data
+        if typeof(settings.trigger_pmt) != Int64 || typeof(settings.trigger_threshold) != Int64
+            error("The settings for 'trigger_pmt' and 'trigger_threshold' should not be an array for non-calibration measurements.")
+            return 
+        end
+    end
     current_dir = pwd()
     cd(settings.data_dir)
     create_struck_daq_file(settings, calibration_measurement=calibration_data)
