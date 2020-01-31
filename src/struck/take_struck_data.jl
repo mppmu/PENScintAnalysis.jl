@@ -78,7 +78,12 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     p = Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
     while i <= length(h5files)
         data = read_data_from_struck(new_files[h5files[i]])
-        writeh5(joinpath(settings.conv_data_dir, basename(new_files[h5files[i][1]])*".h5"), data)
+        if calibration_data
+            writeh5(joinpath(settings.conv_data_dir, "calibration-data_"*basename(new_files[h5files[i][1]])*".h5"), data)
+        else
+            writeh5(joinpath(settings.conv_data_dir, basename(new_files[h5files[i][1]])*".h5"), data)
+        end
+        
         next!(p)
         i += 1
     end
