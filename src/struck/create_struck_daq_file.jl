@@ -26,6 +26,15 @@ saveEnergy = false
 ...
 """
 
+function create_struck_daq_file(settings::NamedTuple; calibration_measurement=true)
+    if calibration_measurement
+        return create_struck_calibration_daq_file(settings)
+    else
+        return create_struck_daq_file(settings)
+    end
+end
+
+
 function create_struck_daq_file(settings::NamedTuple)
     new_daq = open(dirname(pathof(PENScintAnalysis))*"/struck/pmt_daq_6pmt_backup.scala", "r") do file
         temp = readlines(file)
@@ -100,3 +109,88 @@ function create_struck_daq_file(settings::NamedTuple)
     #chmod("./", 0o777)
     return timestamp
 end
+
+
+function create_struck_calibration_daq_file(settings::NamedTuple)
+    new_daq = open("/home/iwsatlas1/ffischer/Desktop/2020/2020-01-28_8182cf65_lt_6pmt_first_data/analysis/pmt_daq_6pmt_calibration_backup.scala", "r") do file
+        temp = readlines(file)
+        i = 1
+        while i <= length(temp)
+            if length(split(temp[i], "//Channels START")) > 1
+                pmt_str = ""
+                j = 1
+                while j <= length(settings.channels)
+                    temp[i+1] = "val pmt"*string(settings.channels[j])*" = Ch("*string(settings.channels[j])*")"
+                    if j < length(settings.channels)
+                        pmt_str = pmt_str*"pmt"*string(settings.channels[j])*", "
+                    else 
+                        pmt_str = pmt_str*"pmt"*string(settings.channels[j])
+                    end
+                    i += 1
+                    j += 1
+                end
+                temp[i+1] = "val pmtChannels = Ch("*pmt_str*")"
+            end
+
+            if length(split(temp[i], "val adc = SIS3316")) > 1
+                temp[i] = "val adc = SIS3316(\"vme-sis3316://"*settings.fadc*"\", \"adc\")"
+            end
+
+            if length(split(temp[i], "val outputBasename =")) > 1
+                temp[i] = "val outputBasename = \""*settings.output_basename*"\""
+            end
+
+            if length(split(temp[i], "val measurementTime =")) > 1
+                temp[i] = "val measurementTime = "*string(settings.measurement_time)
+            end
+
+            if length(split(temp[i], "// Threshold START")) > 1
+                j = 1
+                while j <= length(settings.trigger_pmt)
+                    if length(settings.trigger_pmt) == length(settings.trigger_threshold)
+                        temp[i+1] = "val threshold_"*string(settings.trigger_pmt[j])*" = "*string(settings.trigger_threshold[j])
+                        temp[i+2] = "val trigger_pmt"*string(settings.trigger_pmt[j])*" = pmt"*string(settings.trigger_pmt[j])
+                        temp[i+3] = "adc.trigger_threshold_set(trigger_pmt"*string(settings.trigger_pmt[j])*" --> threshold_"*string(settings.trigger_pmt[j])*")"
+                    elseif length(settings.trigger_pmt) != length(settings.trigger_threshold) && length(settings.trigger_threshold) == 1
+                        temp[i+1] = "val threshold_"*string(settings.trigger_pmt[j])*" = "*string(settings.trigger_threshold[1])
+                        temp[i+2] = "val trigger_pmt"*string(settings.trigger_pmt[j])*" = pmt"*string(settings.trigger_pmt[j])
+                        temp[i+3] = "adc.trigger_threshold_set(trigger_pmt"*string(settings.trigger_pmt[j])*" --> threshold_"*string(settings.trigger_pmt[j])*")"
+                    else
+                        return "Length of 'trigger_pmt' amd 'trigger_threshold' has to be equal or length of 'trigger_threshold has to be 1!'"
+                    end
+                    j += 1
+                    i += 3
+                end
+            end
+
+            if length(split(temp[i], "val peakTime =")) > 1
+                temp[i] = "val peakTime = "*string(settings.peakTime)
+            end
+            if length(split(temp[i], "val gapTime  =")) > 1
+                temp[i] = "val gapTime =  "*string(settings.gapTime)
+            end
+            if length(split(temp[i], "val nPreTrig =")) > 1
+                temp[i] = "val nPreTrig = "*string(settings.nPreTrig)
+            end
+            if length(split(temp[i], "val nSamples =")) > 1
+                temp[i] = "val nSamples = "*string(settings.nSamples)
+            end
+            if length(split(temp[i], "save_energy =")) > 1
+                temp[i] = "      save_energy = "*string(settings.saveEnergy)*","
+            end
+
+
+            i += 1
+        end
+        return(temp)
+    end
+    timestamp = string(now())
+    open("pmt_daq_dont_move.scala", "w") do file
+        for ln in new_daq
+            write(file, ln*"\n")
+        end    
+    end
+    #chmod("./", 0o777)
+    return timestamp
+end
+
