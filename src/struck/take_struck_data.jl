@@ -26,7 +26,7 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 `) `
 ...
 """
-function take_struck_data(settings::NamedTuple)
+function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     if !isdir(settings.data_dir)
         mkpath(settings.data_dir, mode = 0o777)
     end
@@ -35,7 +35,7 @@ function take_struck_data(settings::NamedTuple)
     end
     current_dir = pwd()
     cd(settings.data_dir)
-    create_struck_daq_file(settings)
+    create_struck_daq_file(settings, calibration_measurement=calibration_data)
     t_start = stat("pmt_daq_dont_move.scala").mtime
     p = Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
     chmod(pwd(), 0o777, recursive=true)
