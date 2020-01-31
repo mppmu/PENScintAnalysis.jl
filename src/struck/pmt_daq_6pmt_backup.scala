@@ -54,7 +54,7 @@ def configureADC_hpge(): Unit = {
   adc.trigger_extern_enabled_set(all_pmts --> true)
 
   adc.input_invert_set(trig_pmt --> true)
-  adc.input_invert_set(other_pmts --> false)
+  adc.input_invert_set(other_pmts --> true)
 
   adc.trigger_gate_window_length_set(all_pmts --> 128)
 
