@@ -112,7 +112,7 @@ end
 
 
 function create_struck_calibration_daq_file(settings::NamedTuple)
-    new_daq = open("/home/iwsatlas1/ffischer/Desktop/2020/2020-01-28_8182cf65_lt_6pmt_first_data/analysis/pmt_daq_6pmt_calibration_backup.scala", "r") do file
+    new_daq = open(dirname(pathof(PENScintAnalysis))*"/struck/pmt_daq_6pmt_calibration_backup.scala", "r") do file
         temp = readlines(file)
         i = 1
         while i <= length(temp)
