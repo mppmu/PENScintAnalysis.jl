@@ -30,12 +30,12 @@ function create_struck_daq_file(settings::NamedTuple; calibration_measurement=tr
     if calibration_measurement
         return create_struck_calibration_daq_file(settings)
     else
-        return create_struck_daq_file(settings)
+        return create_struck_data_daq_file(settings)
     end
 end
 
 
-function create_struck_daq_file(settings::NamedTuple)
+function create_struck_data_daq_file(settings::NamedTuple)
     new_daq = open(dirname(pathof(PENScintAnalysis))*"/struck/pmt_daq_6pmt_backup.scala", "r") do file
         temp = readlines(file)
         i = 1
