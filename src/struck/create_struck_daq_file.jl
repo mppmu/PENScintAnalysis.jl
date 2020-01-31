@@ -41,7 +41,10 @@ function create_struck_daq_file(settings::NamedTuple)
                     if settings.channels[j] != settings.trigger_pmt
                         other_pmt *= string(settings.channels[j])
                         if j < length(settings.channels)
-                            other_pmt *= ", "
+                            if j + 1 == length(settings.channels) && settings.channels[end] == settings.trigger_pmt
+                            else
+                                other_pmt *= ", "
+                            end
                         end
                     end
                     j += 1
