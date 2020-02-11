@@ -45,9 +45,9 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
     end
     close(input)
     if filter_faulty_events
-        t = []
-        s = []
-        c = []
+        t = Float64[]
+        s = Array{Int32,1}[]
+        c = Int32[]
         chnum = length(unique(chid))
         i = 1
         while i <= length(evt_t)
@@ -63,13 +63,13 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
                 break 
             end
         end
-        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)#, energy = energy)
+        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)
     else
-        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
+        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)
     end
 end
 
-function read_data_from_struck(filenames)
+function read_data_from_struck(filenames; filter_faulty_events=false, coincidence_interval = 4e-9)
     if split(filenames[1], ".")[end] != "dat"
             println("Wrong fileformat!")
             return []
@@ -103,10 +103,30 @@ function read_data_from_struck(filenames)
         end
         close(input)
     end
-    return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
+    if filter_faulty_events
+        t = Float64[]
+        s = Array{Int32,1}[]
+        c = Int32[]
+        chnum = length(unique(chid))
+        i = 1
+        while i <= length(evt_t)
+            if i + chnum <= length(evt_t)
+                coincident = findall(x->x in [evt_t[i]-coincidence_interval, evt_t[i], evt_t[i]+coincidence_interval], evt_t[i:i+chnum-1])
+                if length(coincident) == chnum
+                    append!(t, evt_t[i:i+chnum-1])
+                    append!(s, samples[i:i+chnum-1])
+                    append!(c, chid[i:i+chnum-1])
+                end
+                i += coincident[end]
+            else
+                break 
+            end
+        end
+        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)
+    else
+        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)
+    end
 end
-
-
 """
         read_raw_data(filename:String; nevents::Int=typemax(Int))
 
