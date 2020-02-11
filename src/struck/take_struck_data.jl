@@ -40,6 +40,8 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
             error("The settings for 'trigger_pmt' and 'trigger_threshold' should not be an array for non-calibration measurements.")
             return 
         end
+    else
+        settings.filter_faulty_events = false
     end
     current_dir = pwd()
     cd(settings.data_dir)
