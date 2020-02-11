@@ -6,7 +6,7 @@
 ## Read data from Struck ADC
 There are two ways to read `*.dat* files now:
 
-- `read_data_from_struck(filename::String; just_evt_t=false)` returns `TypedTable`
+- `read_data_from_struck(filename::String; filter_faulty_events=false, coincidence_interval = 4e-9)` returns `TypedTable`
 - `read_raw_data(filename::String; nevents::Int=typemax(Int))` returns `DataFrame`
 
 Both accept a single string as input or an array of strings for the file paths. In case you use the array, the function returns one TypedTable/DataFrame consisting of all data!
@@ -78,6 +78,8 @@ nPreTrig = 192,
 nSamples = 256,
 saveEnergy = true,
 delete_dat = true,
-h5_filesize_limit = 200
+h5_filesize_limit = 200,
+filter_faulty_events = true,
+coincidence_interval = 4e-9
 ) 
 ```
