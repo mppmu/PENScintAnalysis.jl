@@ -22,7 +22,9 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 `nSamples = 256,`
 `saveEnergy = true,`
 `delete_dat = true,`
-`h5_filesize_limit = 200`
+`h5_filesize_limit = 200,`
+`filter_faulty_events = true,`
+`coincidence_interval = 4e-9`
 `) `
 ...
 """
@@ -83,7 +85,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     i = 1
     p = Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
     while i <= length(h5files)
-        data = read_data_from_struck(new_files[h5files[i]])
+        data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
         if calibration_data
             writeh5(joinpath(settings.conv_data_dir, "calibration-data_"*basename(new_files[h5files[i][1]])*".h5"), data)
         else
