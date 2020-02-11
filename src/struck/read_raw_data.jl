@@ -7,9 +7,11 @@ Reads one (or array of) Struck (*.dat) file(s) and returns a Named Table. Keys: 
 ...
 # Argument
 - `filename::String`: Path to *.dat file as a string. Or array of path to *.dat files as strings.
+- `filter_faulty_events::Bool`: Filters events where not all PMTs were recorded.
+- `coincidence_inderval::Float64`: Coincidence interval for the filter.
 ...
 """
-function read_data_from_struck(filename::String)
+function read_data_from_struck(filename::String; filter_faulty_events=false, coincidence_interval = 4e-9)
     
     if split(filename, ".")[end] != "dat"
             println("Wrong fileformat!")
@@ -42,9 +44,30 @@ function read_data_from_struck(filename::String)
         empty!(sorted)
     end
     close(input)
-    return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
+    if filter_faulty_events
+        t = []
+        s = []
+        c = []
+        chnum = length(unique(chid))
+        i = 1
+        while i <= length(evt_t)
+            if i + chnum <= length(evt_t)
+                coincident = findall(x->x in [evt_t[i]-coincidence_interval, evt_t[i], evt_t[i]+coincidence_interval], evt_t[i:i+chnum-1])
+                if length(coincident) == chnum
+                    append!(t, evt_t[i:i+chnum-1])
+                    append!(s, samples[i:i+chnum-1])
+                    append!(c, chid[i:i+chnum-1])
+                end
+                i += coincident[end]
+            else
+                break 
+            end
+        end
+        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)#, energy = energy)
+    else
+        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)#, energy = energy)
+    end
 end
-
 
 function read_data_from_struck(filenames)
     if split(filenames[1], ".")[end] != "dat"
