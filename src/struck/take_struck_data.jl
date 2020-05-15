@@ -42,7 +42,10 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
             return 
         end
     else
-        settings.filter_faulty_events = false
+        if settings.filter_faulty_events != false
+            @info("filter_faulty_events has to be false for calibration runs!")
+            return
+        end        
     end
     @info("Paths created and checked")
     current_dir = pwd()
