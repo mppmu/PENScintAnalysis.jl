@@ -44,6 +44,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     else
         settings.filter_faulty_events = false
     end
+    @info("Paths created and checked")
     current_dir = pwd()
     cd(settings.data_dir)
     create_struck_daq_file(settings, calibration_measurement=calibration_data)
