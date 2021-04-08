@@ -2,40 +2,41 @@ __precompile__(true)
 
 module PENScintAnalysis
 
-import Base.Threads
+using Base.Threads
 
-import Compat
-import Compat.Markdown
-import Compat: axes
+using Compat
+using Compat.Markdown
+using Compat: axes
 
-import ArraysOfArrays
-import BitOperations
-import CompressedStreams
-import DataFrames
-import Dates
-import DSP
-import ElasticArrays
-import Glob
-import HDF5
-import HTTP
-import IJulia
-import JSON
-import LinearAlgebra
-import LegendDataTypes
-import LegendHDF5IO
-import LegendHDF5IO: readdata, writedata
-import ParallelProcessingTools
-import ProgressMeter
-import Query
-import RecipesBase
-import Sockets
-import SIS3316Digitizers
-import StatsBase
-import StructArrays
-import Suppressor
-import TypedTables
-import UnsafeArrays
-import PENBBControl
+using ArraysOfArrays
+using BitOperations
+using CompressedStreams
+using DataFrames
+using Dates
+using DSP
+using ElasticArrays
+using Glob
+using HDF5
+using HTTP
+using IJulia
+using JSON
+using LinearAlgebra
+using LegendDataTypes
+using LegendHDF5IO
+using LegendHDF5IO: readdata, writedata
+using ParallelProcessingTools
+using Plots
+using ProgressMeter
+using Query
+using RecipesBase
+using Sockets
+using SIS3316Digitizers
+using StatsBase
+using StructArrays
+using Suppressor
+using TypedTables
+using UnsafeArrays
+using PENBBControl
 
 include("util/util.jl")
 include("struck/read_raw_data.jl")

@@ -4,17 +4,15 @@ log10orNaN(x) = (x <= 0) ? typeof(x)(NaN) : log10(x)
 export log10orNaN
 
 
-const WFSamples = AbstractVectorOfSimilarVectors{<:Real, 1, 1}
-# const WFSamples = VectorOfSimilarVectors{<:Real}
-export WFSamples
+# const WFSamples = AbstractVectorOfSimilarVectors{<:Real}
+# export WFSamples
 
 
 av(A::AbstractMatrix) = VectorOfSimilarVectors(A)
 export av
 
-"""
-"""
-function entrysel(predicate::Function, ds::DataFrame, colname::Symbol...)
+# function entrysel(predicate::Function, ds::DataFrame, colname::Symbol...)
+function entrysel(predicate, ds, colname)
     columns = map(c -> ds[c], colname)
     f(xs) = predicate(xs...)
     find(f, zip(columns...))

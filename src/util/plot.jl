@@ -3,7 +3,8 @@
 
 Overlay of waveforms, 2D histogram of pulse waveform, color representing frequency.
 """
-function plot_pulse_hist(waveforms::WFSamples, ybins::StepRange)
+# function plot_pulse_hist(waveforms::WFSamples, ybins::StepRange)
+function plot_pulse_hist(waveforms, ybins::StepRange)
     plot(
         pulse_hist(waveforms, ybins),
         color = :viridis,
