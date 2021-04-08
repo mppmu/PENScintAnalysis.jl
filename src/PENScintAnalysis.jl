@@ -2,7 +2,6 @@ __precompile__(true)
 
 module PENScintAnalysis
 
-
 import Base.Threads
 
 import Compat
@@ -18,6 +17,7 @@ import DSP
 import ElasticArrays
 import Glob
 import HDF5
+import HTTP
 import IJulia
 import JSON
 import LinearAlgebra
@@ -26,10 +26,10 @@ import LegendHDF5IO
 import LegendHDF5IO: readdata, writedata
 import ParallelProcessingTools
 import ProgressMeter
-import Plots
 import Query
 import RecipesBase
-import StruckVMEDevices
+import Sockets
+import SIS3316Digitizers
 import StatsBase
 import StructArrays
 import Suppressor
@@ -66,5 +66,4 @@ export findLocalMaxima, getBaseline, peakIntegral, wfIntegral
 # 6-PMT setup related functions
 export sort_by_events, PENBBScan2D
 
-
-end
+end # module
