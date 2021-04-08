@@ -4,7 +4,8 @@ log10orNaN(x) = (x <= 0) ? typeof(x)(NaN) : log10(x)
 export log10orNaN
 
 
-const WFSamples = AbstractVectorOfSimilarVectors{<:Real}
+#const WFSamples = AbstractVectorOfSimilarVectors{<:Real}
+const WFSamples = VectorOfSimilarVectors{<:Real}
 export WFSamples
 
 
