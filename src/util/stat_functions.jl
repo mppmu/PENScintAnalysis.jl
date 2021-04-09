@@ -14,7 +14,8 @@ export reduced_maximum
 
 """
 """
-function pulse_hist(waveforms::WFSamples, yedge::StepRange)
+# function pulse_hist(waveforms::WFSamples, yedge::StepRange)
+function pulse_hist(waveforms, yedge::StepRange)
     samples = flatview(waveforms)
 
     xedge = axes(samples, 1)

@@ -83,7 +83,7 @@ end
 
 function writeh5(filename::String, typed_table)
     HDF5.h5open(filename, "w") do h5f
-        LegendHDF5IO.readdata( h5f, "data", typed_table)
+        LegendHDF5IO.writedata( h5f, "data", typed_table)
     end
 end
 

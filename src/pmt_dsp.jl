@@ -70,8 +70,8 @@ export wf_range_sum
 
 """
 """
-
-function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
+# function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
+function wf_range_sum(waveforms, r::AbstractUnitRange{<:Integer})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastsum(view(waveforms[i], r))
@@ -81,8 +81,8 @@ end
 
 """
 """
-
-function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
+# function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
+function wf_range_sum(waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
     @threads for i in eachindex(waveforms)
         R[i] = fastvecdot(view(waveforms[i], r), weights)
@@ -93,7 +93,9 @@ end
 """
 """
 
-wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
+# wf_range_sum_simple(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
+#     sum(flatview(waveforms)[r, :] .* weights, 1)[:]
+wf_range_sum_simple(waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real}) =
     sum(flatview(waveforms)[r, :] .* weights, 1)[:]
 
 
@@ -102,16 +104,16 @@ export wf_shift!
 
 """
 """
-
-function wf_shift!(output::WFSamples, input::WFSamples, x::Union{Real,Vector{<:Real}})
+# function wf_shift!(output::WFSamples, input::WFSamples, x::Union{Real,Vector{<:Real}})
+function wf_shift!(output, input, x::Union{Real,Vector{<:Real}})
     flatview(output) .= flatview(input) .+ x'
     output
 end
 
 """
 """
-
-function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
+# function wf_shift_simd!(output::WFSamples, input::WFSamples, x::Real)
+function wf_shift_simd!(output, input, x::Real)
     X = flatview(output)
     A = flatview(input)
 
