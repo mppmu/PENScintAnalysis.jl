@@ -18,6 +18,9 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
     # Login for HV control
     login_payload= JSON.json(Dict("i"=>"", "t" => "login", "c"=> Dict("l"=>"admin", "p"=>"ep4ever", "t" => ""), "r" => "websocket"))
 
+    # Timestamp for moved data
+    ts = string(now())
+
     missed_positions = Dict()
     missed_positions["x"] = []
     missed_positions["y"] = []
@@ -89,7 +92,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 ts = 1
                 prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
                 while istaskdone(t) == false && ts <= 2 * settings["measurement_time"] * settings["number_of_measurements"]
-                    # This loop will break when task t is compleded
+                    # This loop will break when task t is completed
                     # or when the time is over
                     sleep(1)
                     ts += 1
@@ -100,15 +103,13 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 # For this, it throws and error to task t
                 if istaskdone(t) == false || ts < settings["measurement_time"] * settings["number_of_measurements"]
                     @async Base.throwto(t, EOFError())
-                    cd(cur_dir)
                     push!(missed_positions["x"], i)
                     push!(missed_positions["y"], j)
                     open("missing_log_" * HolderName * ".json",  "w") do f
                         JSON.print(f, missed_positions, 4)
                     end
-                else
-                    cd(cur_dir)
                 end
+                cd(cur_dir)
                 
                 sleep(2)
                 # Clear output to reduce memory taken by notebook
@@ -116,7 +117,17 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                     IJulia.clear_output(true)
                 else
                     Base.run(`clear`)
-                end                
+                end              
+            end
+            #
+            ## Copy x scan to ceph
+            if settings["move_to_ceph"]
+                @info("Moving data to ceph. Please wait")
+                from_dir = joinpath(settings["conv_data_dir"], HolderName)
+                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * ts)
+                !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
+                mv(from_dir, to_dir, force=true)    
+                rm(cal_settings["conv_data_dir"], recursive=true)        
             end
         end
         @info("PEN BB 2D scan completed, see you soon!")
