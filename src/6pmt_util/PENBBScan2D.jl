@@ -121,14 +121,14 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
             end
             #
             ## Copy x scan to ceph
-            if settings["move_to_ceph"]
+            #if settings["move_to_ceph"]
                 #@info("Moving data to ceph. Please wait")
                 #from_dir = joinpath(settings["conv_data_dir"], HolderName)
                 #to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * ts)
                 #!isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
                 #mv(from_dir, to_dir, force=true)    
                 #rm(settings["conv_data_dir"], recursive=true)        
-            end
+            #end
         end
         @info("PEN BB 2D scan completed, see you soon!")
     end
