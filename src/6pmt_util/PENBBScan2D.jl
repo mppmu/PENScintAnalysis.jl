@@ -127,7 +127,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * ts)
                 !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
-                rm(cal_settings["conv_data_dir"], recursive=true)        
+                rm(settings["conv_data_dir"], recursive=true)        
             end
         end
         @info("PEN BB 2D scan completed, see you soon!")
