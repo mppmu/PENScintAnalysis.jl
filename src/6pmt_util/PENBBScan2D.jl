@@ -90,8 +90,8 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 
                 # Create timeout check
                 ts = 1
-                prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
-                while istaskdone(t) == false && ts <= 3 * settings["measurement_time"] * settings["number_of_measurements"]
+                prog = Progress(4*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
+                while istaskdone(t) == false && ts <= 4 * settings["measurement_time"] * settings["number_of_measurements"]
                     # This loop will break when task t is completed
                     # or when the time is over
                     sleep(1)
