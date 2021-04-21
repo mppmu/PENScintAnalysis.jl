@@ -91,7 +91,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 # Create timeout check
                 ts = 1
                 prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
-                while istaskdone(t) == false && ts <= 2 * settings["measurement_time"] * settings["number_of_measurements"]
+                while istaskdone(t) == false && ts <= 3 * settings["measurement_time"] * settings["number_of_measurements"]
                     # This loop will break when task t is completed
                     # or when the time is over
                     sleep(1)
@@ -101,7 +101,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 
                 # After the loop has ended, this extra check will interrupt the data taking if needed
                 # For this, it throws and error to task t
-                if istaskdone(t) == false || ts < settings["measurement_time"] * settings["number_of_measurements"]
+                if istaskdone(t) == false || ts <  2 * settings["measurement_time"] * settings["number_of_measurements"]
                     @async Base.throwto(t, EOFError())
                     push!(missed_positions["x"], i)
                     push!(missed_positions["y"], j)
