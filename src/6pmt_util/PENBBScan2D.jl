@@ -101,7 +101,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 
                 # After the loop has ended, this extra check will interrupt the data taking if needed
                 # For this, it throws and error to task t
-                if istaskdone(t) == false || ts <  2 * settings["measurement_time"] * settings["number_of_measurements"]
+                if istaskdone(t) == false || ts < settings["measurement_time"]
                     @async Base.throwto(t, EOFError())
                     push!(missed_positions["x"], i)
                     push!(missed_positions["y"], j)
