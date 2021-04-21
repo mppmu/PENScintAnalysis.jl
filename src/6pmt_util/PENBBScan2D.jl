@@ -19,7 +19,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
     login_payload= JSON.json(Dict("i"=>"", "t" => "login", "c"=> Dict("l"=>"admin", "p"=>"ep4ever", "t" => ""), "r" => "websocket"))
 
     # Timestamp for moved data
-    ts = string(now())
+    timestamp = string(now())
 
     missed_positions = Dict()
     missed_positions["x"] = []
@@ -125,7 +125,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 @info("Moving data to ceph. Please wait")
                 from_dir = joinpath(settings["conv_data_dir"], HolderName)
                 @info("Data will be moved from: " * from_dir)
-                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * string(ts))
+                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp)
                 @info("Data will be moved to: " * to_dir)
                 !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
