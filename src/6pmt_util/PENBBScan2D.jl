@@ -31,6 +31,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
     else
         for i in collect(start[1]:step[1]:ends[1])
             XMoveMM(i,motor)
+            current_x_pos = ""
             @showprogress "Performing y scan for x=$i " for j in collect(start[2]:step[2]:ends[2])
                 @info(string("Points skipped: ", length(missed_positions["x"])))
                 @info("position: ",i,j)
@@ -45,6 +46,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 else
                     pos_x = string(pos_x)
                 end
+                current_x_pos = pos_x
                 if 10 <= pos_y < 100
                     pos_y = string("0", pos_y)
                 elseif pos_y < 10
@@ -123,10 +125,10 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
             ## Move x scan to ceph
             if settings["move_to_ceph"]
                 @info("Moving data to ceph. Please wait")
-                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * pos_x)
+                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * current_x_pos)
                 @info("Data will be moved from: " * from_dir)
 #                 timestamp = string(now())
-                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * pos_x)
+                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
                 @info("Data will be moved to: " * to_dir)
                 !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
