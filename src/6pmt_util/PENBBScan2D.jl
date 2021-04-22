@@ -123,7 +123,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
             ## Move x scan to ceph
             if settings["move_to_ceph"]
                 @info("Moving data to ceph. Please wait")
-                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * pos_x))
+                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * pos_x)
                 @info("Data will be moved from: " * from_dir)
 #                 timestamp = string(now())
                 to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * pos_x)
