@@ -100,6 +100,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 # For this, it throws and error to task t
                 if istaskdone(t) == false || ts < settings["measurement_time"] * settings["number_of_measurements"]
                     @async Base.throwto(t, EOFError())
+                    kill_all_java_processes(2 * settings["measurement_time"])
                     cd(cur_dir)
                     push!(missed_positions["x"], i)
                     push!(missed_positions["y"], j)
