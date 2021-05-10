@@ -29,7 +29,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
         for i in collect(start[1]:step[1]:ends[1])
             XMoveMM(i,motor)
             @showprogress "Performing y scan for x=$i " for j in collect(start[2]:step[2]:ends[2])
-                @info(string("Points skipped: ", length(missed_positions["x"])))
+                #@info(string("Points skipped: ", length(missed_positions["x"])))
                 @info("position: ",i,j)
                 YMoveMM(j,motor)
                 pos_x = PosX(motor)
@@ -78,50 +78,51 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                     coincidence_interval = settings["coincidence_interval"]
                 );
                 println(name_file)
-                #
-                ## Create asynchronous task for data taking
-                t = @async try take_struck_data(settings_nt, calibration_data=settings["calibration_data"])
-                    catch e 
-                    println("stopped on $e") 
-                end
                 
-                # Create timeout check
-                ts = 1
-                prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
-                while istaskdone(t) == false && ts <= 2 * settings["measurement_time"] * settings["number_of_measurements"]
-                    # This loop will break when task t is compleded
-                    # or when the time is over
-                    sleep(1)
-                    ts += 1
-                    next!(prog)
-                end
+                # Measure until the data-taking succeeds
+                done::Bool = false 
+                while !done
                 
-                # After the loop has ended, this extra check will interrupt the data taking if needed
-                # For this, it throws and error to task t
-                if istaskdone(t) == false || ts < settings["measurement_time"] * settings["number_of_measurements"]
-                    @async Base.throwto(t, EOFError())
-                    cd(cur_dir)
-                    push!(missed_positions["x"], i)
-                    push!(missed_positions["y"], j)
-                    open("missing_log_" * HolderName * ".json",  "w") do f
-                        JSON.print(f, missed_positions, 4)
+                    ## Create asynchronous task for data taking
+                    t = @async try take_struck_data(settings_nt, calibration_data=settings["calibration_data"])
+                        catch e 
+                        println("stopped on $e") 
                     end
-                else
+                    
+                    # Create timeout check
+                    ts = 1
+                    prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
+                    while istaskdone(t) == false && ts <= 2 * settings["measurement_time"] * settings["number_of_measurements"]
+                        # This loop will break when task t is compleded
+                        # or when the time is over
+                        sleep(1)
+                        ts += 1
+                        next!(prog)
+                    end
+                    
+                    # After the loop has ended, this extra check will interrupt the data taking if needed
+                    # For this, it throws and error to task t and kills all java processes (if scala process freezes)
+                    if istaskdone(t) == false || ts < settings["measurement_time"] * settings["number_of_measurements"]
+                        @async Base.throwto(t, EOFError())
+                        kill_all_java_processes(2 * settings["measurement_time"])
+                    else # Data taking was successful
+                        done = true 
+                    end
+                    
                     cd(cur_dir)
-                end
-                
-                sleep(2)
-                # Clear output to reduce memory taken by notebook
-                if notebook
-                    IJulia.clear_output(true)
-                else
-                    Base.run(`clear`)
-                end                
+                    sleep(2)
+                    
+                    # Clear output to reduce memory taken by notebook
+                    if notebook
+                        IJulia.clear_output(true)
+                    else
+                        Base.run(`clear`)
+                    end 
+                end              
             end
         end
         @info("PEN BB 2D scan completed, see you soon!")
     end
-
-    @info("Missed positions are listed here:")
+    #@info("Missed positions are listed here:")
     return missed_positions
 end
