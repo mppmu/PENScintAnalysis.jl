@@ -35,9 +35,9 @@ function kill_all_java_processes(min_time_s::Real = 0)
         try run(pipeline(`ps -p $(pid) -o etime`, stdout = time)) catch ; end
         close(time.in)
         elapsed_time = replace(split(String(read(time))," ")[end], "\n" => "")
-        if Time(elapsed_time, "MM:SS") - Time("0") > Second(min_time_s)
+        if length(elapsed_time) > 5 || Time(elapsed_time, "MM:SS") - Time("0") > Second(min_time_s)
             run(`kill $(pid)`)
-            @info("  Process id $(pid) killed (running for $(elapsed_time) minutes)")
+            @info("  Process id $(pid) killed (running for $(elapsed_time)$(length(elapsed_time) == 5 ? " minutes" : ""))")
         end
     end
 end
