@@ -15,6 +15,10 @@ It will return a dictionary of the missed positions, if there are any.
 ...
 """
 function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_payload; notebook=false)
+    
+    # Timestamp for moved data
+    timestamp = string(now())
+    
     missed_positions = Dict()
     missed_positions["x"] = []
     missed_positions["y"] = []
@@ -25,6 +29,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
     else
         for i in collect(start[1]:step[1]:ends[1])
             XMoveMM(i,motor)
+            current_x_pos = ""
             @showprogress "Performing y scan for x=$i " for j in collect(start[2]:step[2]:ends[2])
                 #@info(string("Points skipped: ", length(missed_positions["x"])))
                 @info("position: ",i,j)
@@ -39,6 +44,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                 else
                     pos_x = string(pos_x)
                 end
+                current_x_pos = pos_x
                 if 10 <= pos_y < 100
                     pos_y = string("0", pos_y)
                 elseif pos_y < 10
@@ -74,10 +80,12 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     filter_faulty_events = settings["filter_faulty_events"],
                     coincidence_interval = settings["coincidence_interval"]
                 );
-                println(name_file)
+                # println(name_file)
                 
                 # Measure until the data-taking succeeds
                 done::Bool = false 
+                retry_num = [0]
+
                 while !done
                 
                     ## Create asynchronous task for data taking
@@ -99,9 +107,18 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     
                     # After the loop has ended, this extra check will interrupt the data taking if needed
                     # For this, it throws and error to task t and kills all java processes (if scala process freezes)
-                    if istaskdone(t) == false || ts < settings["measurement_time"]
+                    if (istaskdone(t) == false || ts < settings["measurement_time"]) && retry_num[0] <= 3
                         @async Base.throwto(t, EOFError())
                         kill_all_java_processes(3 * settings["measurement_time"])
+                        retry_num[1] += 1
+                        if retry_num[0] > 3
+                            push!(missed_positions["x"], i)
+                            push!(missed_positions["y"], j)
+                            open("missing_log_" * HolderName * ".json",  "w") do f
+                                JSON.print(f, missed_positions, 4)
+                            end
+                            done = true
+                        end
                     else # Data taking was successful
                         done = true 
                     end
@@ -114,8 +131,22 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                         IJulia.clear_output(true)
                     else
                         Base.run(`clear`)
-                    end 
-                end              
+                    end
+                    
+                end     
+            end
+            #
+            ## Move x scan to ceph
+            if settings["move_to_ceph"]
+                @info("Moving data to ceph. Please wait")
+                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * current_x_pos)
+                @info("Data will be moved from: " * from_dir)
+                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
+                @info("Data will be moved to: " * to_dir)
+                !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
+                mv(from_dir, to_dir, force=true)    
+                rm(settings["conv_data_dir"], recursive=true)
+                try run(`chmod 777 -R $to_dir`) catch; end    
             end
         end
         @info("PEN BB 2D scan completed, see you soon!")
