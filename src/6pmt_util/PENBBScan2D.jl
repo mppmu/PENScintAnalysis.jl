@@ -14,10 +14,7 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
-function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=false)
-    # Login for HV control
-    login_payload= JSON.json(Dict("i"=>"", "t" => "login", "c"=> Dict("l"=>"admin", "p"=>"ep4ever", "t" => ""), "r" => "websocket"))
-
+function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_payload; notebook=false)
     missed_positions = Dict()
     missed_positions["x"] = []
     missed_positions["y"] = []
@@ -91,8 +88,8 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                     
                     # Create timeout check
                     ts = 1
-                    prog = Progress(2*settings["measurement_time"] * settings["number_of_measurements"], "Time till skip:")
-                    while istaskdone(t) == false && ts <= 2 * settings["measurement_time"] * settings["number_of_measurements"]
+                    prog = Progress(3*settings["measurement_time"], "Time till skip:")
+                    while istaskdone(t) == false && ts <= 3 * settings["measurement_time"]
                         # This loop will break when task t is compleded
                         # or when the time is over
                         sleep(1)
