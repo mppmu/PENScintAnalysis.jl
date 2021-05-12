@@ -107,11 +107,11 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     
                     # After the loop has ended, this extra check will interrupt the data taking if needed
                     # For this, it throws and error to task t and kills all java processes (if scala process freezes)
-                    if (istaskdone(t) == false || ts < settings["measurement_time"]) && retry_num[0] <= 3
+                    if (istaskdone(t) == false || ts < settings["measurement_time"]) && retry_num[1] <= 3
                         @async Base.throwto(t, EOFError())
                         kill_all_java_processes(3 * settings["measurement_time"])
                         retry_num[1] += 1
-                        if retry_num[0] > 3
+                        if retry_num[1] > 3
                             push!(missed_positions["x"], i)
                             push!(missed_positions["y"], j)
                             open("missing_log_" * HolderName * ".json",  "w") do f
