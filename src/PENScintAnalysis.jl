@@ -65,6 +65,6 @@ export get_h5_info_old, getUserInput, readh5, read_old_h5_structure, writeh5
 export findLocalMaxima, getBaseline, peakIntegral, wfIntegral
 
 # 6-PMT setup related functions
-export sort_by_events, PENBBScan2D
+export sort_by_events, PENBBScan2D, PENBBGridScan2D
 
 end # module
