@@ -185,8 +185,8 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
     for i in scan_x_rng
         grid = JSON.parsefile(grid_filename)
         to_be_scanned_y = findall(x->x == "to be done", grid[string(i)])
-        scan_y_rng = sort(parse.(Float64, keys(grid[string(i)])[to_be_scanned_y]))
         if length(to_be_scanned_y) > 0
+            scan_y_rng = sort(parse.(Float64, keys(grid[string(i)])[to_be_scanned_y]))
             grid = JSON.parsefile(grid_filename)
             XMoveMM(i,motor)
             current_x_pos = ""
