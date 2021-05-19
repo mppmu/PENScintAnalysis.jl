@@ -254,10 +254,10 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     end
                     
                     # Create timeout check
-                    ts = 1
-                    temp_file_created = false
-                    temp_file_completed = false
-                    waiting_time = 3 * settings["measurement_time"]
+                    ts::Int64 = 1
+                    temp_file_created::Bool = false
+                    temp_file_completed::Bool = false
+                    waiting_time::Int64 = 3 * settings["measurement_time"]
                     prog = Progress(3*settings["measurement_time"], "Time till skip:")
                     while istaskdone(t) == false && ts <= waiting_time
                         # This loop will break when task t is compleded
@@ -268,7 +268,8 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                             Base.run(`clear`)
                         end
                         next!(prog)
-                        tmp_files = glob(joinpath(settings["data_dir"], "*.tmp")))
+                        tmp_files = glob(joinpath(settings["data_dir"], "*.tmp"))
+                        @info("Current position: ",i,j)
                         if length(tmp_files) > 0
                             @info("Temp file created: " * basename(tmp_files[end]))
                             @info("Measurement ongoing")
