@@ -279,7 +279,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                             @info("The waiting time will be increased to cover the conversion to *.h5")
                             temp_file_completed = true
                             waiting_time = 6 * settings["measurement_time"]
-                            temp_dat_files = glob(joinpath(settings["data_dir"], "*.dat")))
+                            temp_dat_files = glob(joinpath(settings["data_dir"], "*.dat"))
                             if length(temp_dat_files) > 0
                                 @info("Conversion still ongoing: " * temp_dat_files[end])
                                 filesize = round((stat(temp_dat_files[end]).size) / 1024 / 1024)
