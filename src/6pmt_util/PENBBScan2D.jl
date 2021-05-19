@@ -273,10 +273,11 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                         else
                             Base.run(`clear`)
                         end
+                        println(i," - ", j)
+                        @info("Current position: ",i,j)
                         next!(prog)
 
-                        tmp_files = glob("*.tmp")
-                        @info("Current position: ",i,j)
+                        tmp_files = glob("*.tmp")                        
                         if length(tmp_files) > 0
                             @info("Temp file created: " * basename(tmp_files[end]))
                             @info("Measurement ongoing")
@@ -289,12 +290,10 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                             temp_dat_files = glob("*.dat")
                             if length(temp_dat_files) > 0
                                 @info("Conversion still ongoing: " * temp_dat_files[end])
-                                filesize = round((stat(temp_dat_files[end]).size) / 1024 / 1024)
-                                @info("File size: " * string(filesize) * " mb")
                             end
                         end                        
-                        sleep(1)
-                        ts += 1                        
+                        sleep(2)
+                        ts += 2                        
                     end
                     
 
