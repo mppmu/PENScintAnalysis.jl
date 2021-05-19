@@ -268,29 +268,18 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     while istaskdone(t) == false && ts <= waiting_time
                         # This loop will break when task t is compleded
                         # or when the time is over
-                        if notebook
-                            IJulia.clear_output(true)
-                        else
-                            Base.run(`clear`)
-                        end
-                        println(i," - ", j)
-                        @info("Current position: ",i,j)
                         next!(prog)
 
                         tmp_files = glob("*.tmp")                        
-                        if length(tmp_files) > 0
+                        if length(tmp_files) > 0 && !temp_file_created
                             @info("Temp file created: " * basename(tmp_files[end]))
                             @info("Measurement ongoing")
                             temp_file_created = true
-                        elseif temp_file_created
+                        elseif temp_file_created && !temp_file_completed
                             @info("Data taking is done! Conversion to *.h5 will start now")
                             @info("The waiting time will be increased to cover the conversion to *.h5")
                             temp_file_completed = true
                             waiting_time = 6 * settings["measurement_time"]
-                            temp_dat_files = glob("*.dat")
-                            if length(temp_dat_files) > 0
-                                @info("Conversion still ongoing: " * temp_dat_files[end])
-                            end
                         end                        
                         sleep(2)
                         ts += 2                        
