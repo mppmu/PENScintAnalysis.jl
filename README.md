@@ -3,6 +3,10 @@
 ## Update
 `PENAnalysisTools.jl` and `PENAnalysisToolsLuis.jl` have been merged to `PENScintAnalysis.jl`
 
+To add the dependency regarding the SIS3316 use:
+`]add https://github.com/oschulz/StruckVMEDevices.jl#SIS3316Digitizers`
+(This can be replaced by an all-julia Struck package in the future)
+
 ## Read data from Struck ADC
 There are two ways to read `*.dat* files now:
 
