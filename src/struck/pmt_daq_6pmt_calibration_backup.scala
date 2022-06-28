@@ -24,7 +24,7 @@ val measurementTime = 10
 //val measurementTime= args(1).toInt
 //val trigger= args(2).toInt
 
-val adc = SIS3316("vme-sis3316://gelab-fadc08", "adc")
+val adc = SIS3316("vme-sis3316://gelab-fadc10", "adc")
 
 println(s"ADC identity: ${adc.identity.get}, serial number ${adc.serNo.get}")
 println(s"ADC temperature: ${adc.internalTemperature.get} °C")

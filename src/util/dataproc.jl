@@ -1,7 +1,7 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
 
 """
-    precalibrate_data(raw_data::DataFrame; <keyword arguments>)
+    precalibrate_data(raw_data::DataFrames.DataFrame; <keyword arguments>)
 
 Remove offset for timestamp and waveforms of input data.
 
@@ -13,7 +13,7 @@ Calculates the mean value of the baseline then subtracts from ADC counts.
 - `postbl_range::UnitRange{Int} = 300:350`: Range for the post-trigger baseline.
 """
 function precalibrate_data(
-    raw_data::DataFrame;
+    raw_data::DataFrames.DataFrame;
     prebl_range::UnitRange{Int} = 1:32,
     postbl_range::UnitRange{Int} = 300:350
 )
@@ -31,7 +31,7 @@ function precalibrate_data(
     # wf_shift!(waveforms, waveforms, - (orig_prebl_level .+ orig_postbl_level) ./ 2)
     wf_shift!(waveforms, waveforms, - orig_prebl_level)
 
-    DataFrame(
+    DataFrames.DataFrame(
         channel = raw_data.channel,
         bufferno = raw_data.bufferno,
         timestamp = timestamp,
@@ -42,7 +42,7 @@ end
 export precalibrate_data
 
 """
-    analyse_waveforms(precal_data::DataFrame; <keyword arguments>)
+    analyse_waveforms(precal_data::DataFrames.DataFrame; <keyword arguments>)
 
 Compute integrals and related values for input waveforms.
 
@@ -54,7 +54,7 @@ Compute integrals and related values for input waveforms.
 - `noise_range::UnitRange{Int} = 180:(180+60)`: Range for expected noise.
 """
 function analyse_waveforms(
-    precal_data::DataFrame;
+    precal_data::DataFrames.DataFrame;
     prebl_range::UnitRange{Int} = 1:32,
     postbl_range::UnitRange{Int} = 300:350,
     peak_range::UnitRange{Int} = 245:(245 + 40),
@@ -80,7 +80,7 @@ function analyse_waveforms(
     psa_speed = peak_integral_short ./ peak_integral
     psa_noise = noise_integral ./ peak_integral
 
-    DataFrame(
+    DataFrames.DataFrame(
         channel = precal_data.channel,
         bufferno = precal_data.bufferno,
         timestamp = precal_data.timestamp,

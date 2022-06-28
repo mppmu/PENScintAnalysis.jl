@@ -19,7 +19,7 @@ logger.info("Ready")
 
 //if (args.size != 3) throw new RuntimeException("Invalid number of command line arguments")
 
-val adcHostname = "gelab-fadc08"
+val adcHostname = "gelab-fadc10"
 val outputBasename = "test-measurement"
 val measurementTime = 5
 

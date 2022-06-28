@@ -3,14 +3,20 @@
 ## Update
 `PENAnalysisTools.jl` and `PENAnalysisToolsLuis.jl` have been merged to `PENScintAnalysis.jl`
 
-To add the dependency regarding the SIS3316 use:
-`]add https://github.com/oschulz/StruckVMEDevices.jl#SIS3316Digitizers`
-(This can be replaced by an all-julia Struck package in the future)
+## Required packages
+A few packages required for `PENScintAnalysis.jl` are not registered. These can be found here:
+
+- `https://github.com/oschulz/StruckVMEDevices.jl#SIS3316Digitizers`
+- `https://github.com/oschulz/CompressedStreams.jl`
+
+For LEGEND software, add the LEGEND Julia registry: `https://github.com/legend-exp/LegendJuliaRegistry`
+
+Then add `LegendHDF5IO` and `LegendDataTypes`.
 
 ## Read data from Struck ADC
 There are two ways to read `*.dat* files now:
 
-- `read_data_from_struck(filename::String; filter_faulty_events=false, coincidence_interval = 4e-9)` returns `TypedTable`
+- `read_data_from_struck(filename::String; just_evt_t=false)` returns `TypedTable`
 - `read_raw_data(filename::String; nevents::Int=typemax(Int))` returns `DataFrame`
 
 Both accept a single string as input or an array of strings for the file paths. In case you use the array, the function returns one TypedTable/DataFrame consisting of all data!
@@ -81,9 +87,6 @@ gapTime = 2,
 nPreTrig = 192,
 nSamples = 256,
 saveEnergy = true,
-delete_dat = true,
-h5_filesize_limit = 200,
-filter_faulty_events = true,
-coincidence_interval = 4e-9
+delete_dat = true
 ) 
 ```
