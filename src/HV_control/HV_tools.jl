@@ -1,5 +1,3 @@
-# login_payload= JSON.json(Dict("i"=>"", "t" => "login", "c"=> Dict("l"=>"LOGIN", "p"=>"PASSWORD", "t" => ""), "r" => "websocket"))
-
 function _construct_request(i, command, item, c = "*", v = "", u = "")
     return JSON.json(
     Dict(

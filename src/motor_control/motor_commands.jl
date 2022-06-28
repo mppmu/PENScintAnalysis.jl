@@ -8,6 +8,15 @@ function mymotor()::Array{XIMCMotor,1}
 	return m
 end
 
+function mymotor(device::String, ports)::Array{XIMCMotor,1}
+	m = [
+           XIMCMotor(device, ports[1]),
+           XIMCMotor(device, ports[2])
+       ]
+	Initialize(m)
+	return m
+end
+
 function _Initialize(motor::XIMCMotor)
 	fbs1 = motor[Feedback, Settings]
 	sleep(1)
