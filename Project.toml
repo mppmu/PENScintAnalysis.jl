@@ -1,5 +1,6 @@
 name = "PENScintAnalysis"
-uuid = "4c079b6a-3e73-11e9-3c84-c195fd713d5d"
+uuid = "570a3f4c-aee3-411c-bc3a-94dd7ea4d3ec"
+authors = ["Felix Fischer <ffischer@mpp.mpg.de>"]
 version = "0.1.0"
 
 [deps]
@@ -13,6 +14,9 @@ Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 ElasticArrays = "fdbdab4c-e67f-52f5-8c3f-e7b388dad3d4"
 Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 HDF5 = "f67ccb44-e63f-5c2f-98bd-6dc0ccc4ba2f"
+HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LegendDataTypes = "99e09c13-5545-5ee2-bfa2-77f358fb75d8"
 LegendHDF5IO = "c9265ca6-b027-5446-b1a4-febfa8dd10b0"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -20,20 +24,11 @@ ParallelProcessingTools = "8e8a01fc-6193-5ca1-a2f1-20776dae4199"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Query = "1a8c2f83-1ff3-5112-b086-8aa67b057ba1"
-RadiationDetectorSignals = "bf2c0563-65cf-5db2-a620-ceb7de82658c"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 SIS3316Digitizers = "d1878dac-861e-11e9-0454-3b51f21b60a4"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 StructArrays = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 TypedTables = "9d95f2ec-7b3d-5a63-8d20-e2491e220bb9"
 UnsafeArrays = "c4a57d5a-5b31-53a6-b365-19f8c011fbd6"
-
-[compat]
-julia = "1"
-
-[extras]
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-
-[targets]
-test = ["Test"]

@@ -36,5 +36,4 @@ function findLocalMaxima(signal::Vector, threshold = 0 )
    end
    inds
 end
-
-
+export findLocalMaxima

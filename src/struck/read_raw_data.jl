@@ -127,6 +127,9 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
         return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)
     end
 end
+export read_data_from_struck
+
+
 """
         read_raw_data(filename:String; nevents::Int=typemax(Int))
 
@@ -217,3 +220,4 @@ function read_raw_data(filenames; nevents=typemax(Int))
     end
         return DataFrame(channel = df_all.chid, timestamp = df_all.evt_t, waveform = df_all.samples, energy = df_all.energy)
 end
+export read_raw_data

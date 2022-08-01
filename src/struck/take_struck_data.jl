@@ -29,40 +29,39 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 ...
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
-    @info("Updated: 2020-05-15 14:08")
-    if !isdir(settings.data_dir)
-        mkpath(settings.data_dir, mode = 0o777)
-    end
-    if !isdir(settings.conv_data_dir)
-        mkpath(settings.conv_data_dir, mode = 0o777)
-    end
+    @info("Updated: 2021-03-30 15:12")
+    !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o777) : "Path exists"
+    
+    !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o777) : "Path exists"
+
     if !calibration_data
         if typeof(settings.trigger_pmt) != Int64 || typeof(settings.trigger_threshold) != Int64
             error("The settings for 'trigger_pmt' and 'trigger_threshold' should not be an array for non-calibration measurements.")
             return 
         end
-    else
-        if settings.filter_faulty_events != false
-            @info("filter_faulty_events has to be false for calibration runs!")
-            return
-        end        
+    #else
+     #   settings.filter_faulty_events = false
     end
-    @info("Paths created and checked")
+    
     current_dir = pwd()
     cd(settings.data_dir)
     create_struck_daq_file(settings, calibration_measurement=calibration_data)
+    
     t_start = stat("pmt_daq_dont_move.scala").mtime
     p = Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
-    #chmod(pwd(), 0o777, recursive=true)
+    chmod(pwd(), 0o777, recursive=true)
     i = 1
+    
     while i <= settings.number_of_measurements
         #chmod("./", 0o777)
-        @suppress run(`./pmt_daq_dont_move.scala`);
+        Suppressor.@suppress run(`./pmt_daq_dont_move.scala`);
         next!(p)
         i += 1
     end
     #chmod(pwd(), 0o777, recursive=true)
-    files = glob(settings.output_basename*"*.dat")
+    rm("pmt_daq_dont_move.scala")
+    cd(current_dir)
+    files = glob(joinpath(settings.data_dir, settings.output_basename * "*.dat"))
     new_files = []
     i = 1
     while i <= length(files)
@@ -94,9 +93,9 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     while i <= length(h5files)
         data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
         if calibration_data
-            writeh5(joinpath(settings.conv_data_dir, "calibration-data_"*basename(new_files[h5files[i][1]])*".h5"), data)
+            writeh5(joinpath(settings.conv_data_dir, "calibration-data_" * split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
         else
-            writeh5(joinpath(settings.conv_data_dir, basename(new_files[h5files[i][1]])*".h5"), data)
+            writeh5(joinpath(settings.conv_data_dir, split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
         end
         
         next!(p)
@@ -109,9 +108,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
              i += 1
         end
     end
-    rm("pmt_daq_dont_move.scala")
-    cd(settings.conv_data_dir)
-    #chmod(pwd(), 0o777, recursive=true)
     
-    cd(current_dir)
+    # cd(current_dir)
 end
+export take_struck_data

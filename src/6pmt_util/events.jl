@@ -16,3 +16,4 @@ function sort_by_events(data_table; coincidence_interval=4e-9)
     
     return events
 end
+export sort_by_events
