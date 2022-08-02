@@ -166,10 +166,10 @@ mutable struct XIMCMotor <: Device
 end
 
 XIMCMotor(hostname::AbstractString, port::Integer) =
-    XIMCMotor(connect(hostname, port))
+    XIMCMotor(HTTP.connect(hostname, port))
 
 # XIMCMotor(hostname::AbstractString, port::Integer) =
-#     XIMCMotor(Lockable{IO}(connect(hostname, port)))
+#     XIMCMotor(Lockable{IO}(HTTP.connect(hostname, port)))
 #
 
 function ximc_cmd(motor::XIMCMotor, cmd_code::String)
