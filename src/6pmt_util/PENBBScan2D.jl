@@ -96,7 +96,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     
                     # Create timeout check
                     ts = 1
-                    prog = Progress(3*settings["measurement_time"], "Time till skip:")
+                    prog = ProgressMeter.Progress(3*settings["measurement_time"], "Time till skip:")
                     while istaskdone(t) == false && ts <= 3 * settings["measurement_time"]
                         # This loop will break when task t is compleded
                         # or when the time is over
@@ -266,7 +266,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     temp_file_created::Bool = false
                     temp_file_completed::Bool = false
                     waiting_time::Int64 = 3 * settings["measurement_time"]
-                    prog = Progress(3*settings["measurement_time"], "Time till skip:")
+                    prog = ProgressMeter.Progress(3*settings["measurement_time"], "Time till skip:")
                     while istaskdone(t) == false && ts <= waiting_time
                         # This loop will break when task t is compleded
                         # or when the time is over
