@@ -22,7 +22,7 @@ function _construct_request(i, command, item, c = "*", v = "", u = "")
 end
 
 
-function _issue_command(ip, command::String, item::String, channel::String = "*", value::String = "", unit::String = "", login_payload)
+function _issue_command(ip, login_payload, command::String, item::String, channel::String = "*", value::String = "", unit::String = "")
     results = []
     HTTP.WebSockets.open(ip) do ws
            write(ws, login_payload)
@@ -38,11 +38,11 @@ function _issue_command(ip, command::String, item::String, channel::String = "*"
 end
 
 """
-        get_measured_HV(ip = ip, login_payload)
+        get_measured_HV(ip, login_payload)
 Get measured voltage for channels 1 to 8. This may ary from the set value.
 """
 
-function get_measured_HV(ip = ip, login_payload)
+function get_measured_HV(ip, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
                write(ws, login_payload)
@@ -66,11 +66,11 @@ end
 export get_measured_HV
 
 """
-        get_set_HV(ip = ip)
-Get set voltage for channels 1 to 8. This may ary from the measured value.
+        get_set_HV(ip = ip, login_payload)
+Get set voltage for channels 1 to 8. This may vary from the measured value.
 """
 
-function get_set_HV(ip = ip, login_payload)
+function get_set_HV(ip, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
                write(ws, login_payload)
@@ -154,8 +154,8 @@ end
 export ramp_down
 
 
-function get_rampspeedUp(ip = ip, login_payload)
-    results = _issue_command(ip, "getItem", "Control.voltageRampspeedUp", login_payload)
+function get_rampspeedUp(ip, login_payload)
+    results = _issue_command(ip, login_payload, "getItem", "Control.voltageRampspeedUp")
     d = results[1]
     return parse(Float64,d[1]["c"][1]["d"]["v"]), 
         parse(Float64,d[1]["c"][2]["d"]["v"]), 
@@ -170,15 +170,15 @@ export get_rampspeedUp
 
 
 function set_rampspeedUp(ip, channel, value, login_payload)
-    results = _issue_command(ip, "setItem", "Control.voltageRampspeedUp", "$channel", "$value", "V/s", login_payload)
+    results = _issue_command(ip, login_payload, "setItem", "Control.voltageRampspeedUp", "$channel", "$value", "V/s")
     d = results[1][1]
     return d["trigger"]
 end
 export set_rampspeedUp
 
 
-function get_rampspeedDown(ip = ip, login_payload)
-    results = _issue_command(ip, "getItem", "Control.voltageRampspeedDown", login_payload)
+function get_rampspeedDown(ip, login_payload)
+    results = _issue_command(ip, login_payload, "getItem", "Control.voltageRampspeedDown")
     d = results[1]
     return parse(Float64,d[1]["c"][1]["d"]["v"]), 
         parse(Float64,d[1]["c"][2]["d"]["v"]), 
@@ -193,7 +193,7 @@ export get_rampspeedDown
 
 
 function set_rampspeedDown(ip, channel, value, login_payload)
-    results = _issue_command(ip, "setItem", "Control.voltageRampspeedDown", "$channel", "$value", "V/s", login_payload)
+    results = _issue_command(ip, login_payload, "setItem", "Control.voltageRampspeedDown", "$channel", "$value", "V/s")
     d = results[1][1]
     return d["trigger"]
 end
