@@ -22,7 +22,7 @@ function _construct_request(i, command, item, c = "*", v = "", u = "")
 end
 
 
-function _issue_command(ip, command::String, item::String, channel::String = "*", value::String = "", unit::String = "")
+function _issue_command(ip, command::String, item::String, channel::String = "*", value::String = "", unit::String = "", login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
            write(ws, login_payload)
@@ -38,11 +38,11 @@ function _issue_command(ip, command::String, item::String, channel::String = "*"
 end
 
 """
-        get_measured_HV(ip = ip)
+        get_measured_HV(ip = ip, login_payload)
 Get measured voltage for channels 1 to 8. This may ary from the set value.
 """
 
-function get_measured_HV(ip = ip)
+function get_measured_HV(ip = ip, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
                write(ws, login_payload)
@@ -70,7 +70,7 @@ export get_measured_HV
 Get set voltage for channels 1 to 8. This may ary from the measured value.
 """
 
-function get_set_HV(ip = ip)
+function get_set_HV(ip = ip, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
                write(ws, login_payload)
@@ -94,7 +94,7 @@ end
 export get_set_HV
 
 """
-        set_HV(ip::String, c::Int, v::Real)
+        set_HV(ip::String, c::Int, v::Real, login_payload)
 Set voltage for one channel.
 ...
 # Arguments
@@ -104,7 +104,7 @@ Set voltage for one channel.
 ...
 """
 
-function set_HV(ip::String, c::Int, v::Real)
+function set_HV(ip::String, c::Int, v::Real, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
                write(ws, login_payload)
@@ -120,7 +120,7 @@ function set_HV(ip::String, c::Int, v::Real)
 end
 export set_HV
 
-function ramp_up(ip::String, c::Int)
+function ramp_up(ip::String, c::Int, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
            write(ws, login_payload)
@@ -137,7 +137,7 @@ end
 export ramp_up
 
 
-function ramp_down(ip::String, c::Int)
+function ramp_down(ip::String, c::Int, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
            write(ws, login_payload)
@@ -154,8 +154,8 @@ end
 export ramp_down
 
 
-function get_rampspeedUp(ip = ip)
-    results = _issue_command(ip, "getItem", "Control.voltageRampspeedUp")
+function get_rampspeedUp(ip = ip, login_payload)
+    results = _issue_command(ip, "getItem", "Control.voltageRampspeedUp", login_payload)
     d = results[1]
     return parse(Float64,d[1]["c"][1]["d"]["v"]), 
         parse(Float64,d[1]["c"][2]["d"]["v"]), 
@@ -169,16 +169,16 @@ end
 export get_rampspeedUp
 
 
-function set_rampspeedUp(ip, channel, value)
-    results = _issue_command(ip, "setItem", "Control.voltageRampspeedUp", "$channel", "$value", "V/s")
+function set_rampspeedUp(ip, channel, value, login_payload)
+    results = _issue_command(ip, "setItem", "Control.voltageRampspeedUp", "$channel", "$value", "V/s", login_payload)
     d = results[1][1]
     return d["trigger"]
 end
 export set_rampspeedUp
 
 
-function get_rampspeedDown(ip = ip)
-    results = _issue_command(ip, "getItem", "Control.voltageRampspeedDown")
+function get_rampspeedDown(ip = ip, login_payload)
+    results = _issue_command(ip, "getItem", "Control.voltageRampspeedDown", login_payload)
     d = results[1]
     return parse(Float64,d[1]["c"][1]["d"]["v"]), 
         parse(Float64,d[1]["c"][2]["d"]["v"]), 
@@ -192,15 +192,15 @@ end
 export get_rampspeedDown
 
 
-function set_rampspeedDown(ip, channel, value)
-    results = _issue_command(ip, "setItem", "Control.voltageRampspeedDown", "$channel", "$value", "V/s")
+function set_rampspeedDown(ip, channel, value, login_payload)
+    results = _issue_command(ip, "setItem", "Control.voltageRampspeedDown", "$channel", "$value", "V/s", login_payload)
     d = results[1][1]
     return d["trigger"]
 end
 export set_rampspeedDown
 
 
-function voltage_goto(ip::String, channel::Int, value::Real)
+function voltage_goto(ip::String, channel::Int, value::Real, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
            write(ws, login_payload)
