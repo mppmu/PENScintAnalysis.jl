@@ -102,7 +102,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                         # or when the time is over
                         sleep(1)
                         ts += 1
-                        next!(prog)
+                        ProgressMeter.next!(prog)
                     end
                     
                     # After the loop has ended, this extra check will interrupt the data taking if needed
@@ -270,7 +270,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     while istaskdone(t) == false && ts <= waiting_time
                         # This loop will break when task t is compleded
                         # or when the time is over
-                        next!(prog)
+                        ProgressMeter.next!(prog)
 
                         tmp_files = glob("*.tmp")                        
                         if length(tmp_files) > 0 && !temp_file_created
