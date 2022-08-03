@@ -30,9 +30,9 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     @info("Updated: 2021-03-30 15:12")
-    !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o777) : "Path exists"
+    !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o775) : "Path exists"
     
-    !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o777) : "Path exists"
+    !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o775) : "Path exists"
 
     if !calibration_data
         if typeof(settings.trigger_pmt) != Int64 || typeof(settings.trigger_threshold) != Int64
@@ -48,17 +48,17 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     create_struck_daq_file(settings, calibration_measurement=calibration_data)
     
     t_start = stat("pmt_daq_dont_move.scala").mtime
-    p = Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
-    chmod(pwd(), 0o777, recursive=true)
+    p = ProgressMeter.Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
+    chmod(pwd(), 0o775, recursive=true)
     i = 1
     
     while i <= settings.number_of_measurements
-        #chmod("./", 0o777)
+        #chmod("./", 0o775)
         Suppressor.@suppress run(`./pmt_daq_dont_move.scala`);
-        next!(p)
+        ProgressMeter.next!(p)
         i += 1
     end
-    #chmod(pwd(), 0o777, recursive=true)
+    #chmod(pwd(), 0o775, recursive=true)
     rm("pmt_daq_dont_move.scala")
     cd(current_dir)
     files = glob(joinpath(settings.data_dir, settings.output_basename * "*.dat"))
@@ -89,7 +89,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
         push!(h5files, compress)
     end
     i = 1
-    p = Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
+    p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
     while i <= length(h5files)
         data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
         if calibration_data
@@ -98,7 +98,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
             writeh5(joinpath(settings.conv_data_dir, split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
         end
         
-        next!(p)
+        ProgressMeter.next!(p)
         i += 1
     end
     if settings.delete_dat

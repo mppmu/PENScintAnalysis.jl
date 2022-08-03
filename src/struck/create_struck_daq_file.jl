@@ -107,7 +107,7 @@ function create_struck_data_daq_file(settings::NamedTuple)
             write(file, ln*"\n")
         end    
     end
-    chmod("./", 0o777)
+    chmod("./", 0o775)
     return timestamp
 end
 export create_struck_data_daq_file
@@ -192,7 +192,7 @@ function create_struck_calibration_daq_file(settings::NamedTuple)
             write(file, ln*"\n")
         end    
     end
-    chmod("./", 0o777)
+    chmod("./", 0o775)
     return timestamp
 end
 export create_struck_calibration_daq_file

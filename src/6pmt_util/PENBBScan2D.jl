@@ -37,6 +37,9 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                 pos_x = PosX(motor)
                 pos_y = PosY(motor)
 
+
+                #
+                ## Use lpad(pos_x) ??
                 if 10 <= pos_x < 100
                     pos_x = string("0", pos_x)
                 elseif pos_x < 10
