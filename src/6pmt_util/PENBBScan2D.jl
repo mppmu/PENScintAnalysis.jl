@@ -17,12 +17,12 @@ It will return a dictionary of the missed positions, if there are any.
 function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_payload; notebook=false)
     
     # Timestamp for moved data
-    timestamp = string(now())
+    timestamp = string(Dates.now())
     
     missed_positions = Dict()
     missed_positions["x"] = []
     missed_positions["y"] = []
-    start_t = now()
+    start_t = Dates.now()
     cur_dir = pwd()
     if start[1] < 0.0 || start[2] < 0.0 || ends[1] > 100.0 || ends[2] > 100.0
         @info("Error: value out of range: you have to use values in the range x[0.,10.], y[0.,10.]")
@@ -176,10 +176,10 @@ It will return a dictionary of the missed positions, if there are any.
 function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_payload; notebook=false)
     
     # Timestamp for moved data
-    timestamp = string(now())
+    timestamp = string(Dates.now())
     
     grid = JSON.parsefile(grid_filename)
-    start_t = now()
+    start_t = Dates.now()
     cur_dir = pwd()
 
     scan_x_rng = sort(parse.(Float64, keys(grid)))
