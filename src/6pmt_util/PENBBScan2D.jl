@@ -69,7 +69,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     data_dir = settings["data_dir"],
                     conv_data_dir = output_dir,
                     measurement_time = settings["measurement_time"],
-                    number_of_measurements = 1,
+                    number_of_measurements = 1, # please use this function in a loop
                     channels = settings["channels"],
                     trigger_threshold = settings["trigger_threshold"],
                     trigger_pmt = settings["trigger_pmt"],
@@ -233,7 +233,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     data_dir = settings["data_dir"],
                     conv_data_dir = output_dir,
                     measurement_time = settings["measurement_time"],
-                    number_of_measurements = 1,
+                    number_of_measurements = 1, # please use this function in a loop
                     channels = settings["channels"],
                     trigger_threshold = settings["trigger_threshold"],
                     trigger_pmt = settings["trigger_pmt"],
@@ -271,7 +271,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                         # or when the time is over
                         ProgressMeter.next!(prog)
 
-                        tmp_files = glob("*.tmp")                        
+                        tmp_files = Glob.glob("*.tmp")                        
                         if length(tmp_files) > 0 && !temp_file_created
                             @info("Temp file created: " * basename(tmp_files[end]))
                             @info("Measurement ongoing")
@@ -321,10 +321,10 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                 @info("Data will be moved from: " * from_dir)
                 to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
                 @info("Data will be moved to: " * to_dir)
-                !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
+                !isdir(to_dir) ? mkpath(to_dir, mode= 0o775) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
                 rm(settings["conv_data_dir"], recursive=true)
-                try run(`chmod 777 -R $to_dir`) catch; end    
+                try run(`chmod 775 -R $to_dir`) catch; end    
             end
         end
     end

@@ -29,7 +29,7 @@ Creates an individual `pmt_daq.scala` file and takes data which are converted to
 ...
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
-    @info("Updated: 2021-03-30 15:12")
+    @info("Updated: 2022-08-04")
     !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o775) : "Path exists"
     
     !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o775) : "Path exists"
@@ -61,7 +61,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false)
     #chmod(pwd(), 0o775, recursive=true)
     rm("pmt_daq_dont_move.scala")
     cd(current_dir)
-    files = glob(joinpath(settings.data_dir, settings.output_basename * "*.dat"))
+    files = Glob.glob(joinpath(settings.data_dir, settings.output_basename * "*.dat"))
     new_files = []
     i = 1
     while i <= length(files)
