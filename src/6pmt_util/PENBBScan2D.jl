@@ -39,7 +39,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
 
 
                 #
-                ## Use lpad(pos_x) ??
+                ## Use lpad(pos_x) ?? --> only for integer values
                 if 10 <= pos_x < 100
                     pos_x = string("0", pos_x)
                 elseif pos_x < 10
@@ -146,10 +146,10 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                 @info("Data will be moved from: " * from_dir)
                 to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
                 @info("Data will be moved to: " * to_dir)
-                !isdir(to_dir) ? mkpath(to_dir, mode= 0o777) : "dir exists"
+                !isdir(to_dir) ? mkpath(to_dir, mode= 0o775) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
                 rm(settings["conv_data_dir"], recursive=true)
-                try run(`chmod 777 -R $to_dir`) catch; end    
+                try run(`chmod 775 -R $to_dir`) catch; end    
             end
         end
         @info("PEN BB 2D scan completed, see you soon!")
