@@ -150,7 +150,7 @@ Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
 """
 function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
     h5open(filename, "r") do h5f
-        tt = Table(
+        tt = TypedTables.Table(
             chid = Int32[],
             timestamp = Float64[],
             samples   = ArraysOfArrays.VectorOfArrays(Array{Int32,1}[]),
@@ -188,7 +188,7 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
                 end
             end
 
-            append!(tt, Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=ArraysOfArrays.VectorOfArrays(pulses)))
+            append!(tt, TypedTables.Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=ArraysOfArrays.VectorOfArrays(pulses)))
             next!(p)
             n2 += 1
             if nbreak || n2 == nsubfiles
@@ -201,7 +201,7 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
         
         tt_ch = Dict()
         for ch in chids
-            tt_ch[string(ch)] = tt |> Query.@select(:chid, :timestamp, :samples) |> Query.@filter(_.chid == ch) |> Table;
+            tt_ch[string(ch)] = tt |> Query.@select(:chid, :timestamp, :samples) |> Query.@filter(_.chid == ch) |> TypedTables.Table;
         end
         return tt_ch
     end

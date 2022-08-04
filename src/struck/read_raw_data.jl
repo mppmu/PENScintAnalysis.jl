@@ -63,9 +63,9 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
                 break 
             end
         end
-        return Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
+        return TypedTables.Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
     else
-        return Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
+        return TypedTables.Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
     end
 end
 
@@ -122,9 +122,9 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
                 break 
             end
         end
-        return Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
+        return TypedTables.Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
     else
-        return Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
+        return TypedTables.Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
     end
 end
 export read_data_from_struck
