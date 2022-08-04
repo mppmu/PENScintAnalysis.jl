@@ -69,7 +69,7 @@ function struck_to_h5(filenames; conv_data_dir="../conv_data/")
     dset = read_data_from_struck(filenames)
     
     HDF5.h5open(conv_data_dir*real_filename*".h5", "w") do h5f
-        LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=VectorOfArrays(dset.samples)))
+        LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=ArraysOfArrays.VectorOfArrays(dset.samples)))
     end
 end
 export struck_to_h5
@@ -153,7 +153,7 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
         tt = Table(
             chid = Int32[],
             timestamp = Float64[],
-            samples   = VectorOfArrays(Array{Int32,1}[]),
+            samples   = ArraysOfArrays.VectorOfArrays(Array{Int32,1}[]),
             ) 
         n1 = 0
         n2 = 0
@@ -188,7 +188,7 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
                 end
             end
 
-            append!(tt, Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=VectorOfArrays(pulses)))
+            append!(tt, Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=ArraysOfArrays.VectorOfArrays(pulses)))
             next!(p)
             n2 += 1
             if nbreak || n2 == nsubfiles

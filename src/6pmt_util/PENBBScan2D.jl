@@ -129,12 +129,8 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_paylo
                     cd(cur_dir)
                     sleep(2)
                     
-                    # Clear output to reduce memory taken by notebook
-                    if notebook
-                        IJulia.clear_output(true)
-                    else
-                        Base.run(`clear`)
-                    end
+                    # Clear output
+                    notebook ? IJulia.clear_output(true) : Base.run(`clear`)
                     
                 end     
             end
@@ -311,12 +307,8 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_paylo
                     cd(cur_dir)
                     sleep(2)
                     
-                    # Clear output to reduce memory taken by notebook
-                    if notebook
-                        IJulia.clear_output(true)
-                    else
-                        Base.run(`clear`)
-                    end
+                    # Clear output
+                    notebook ? IJulia.clear_output(true) : Base.run(`clear`)
                     
                 end
             end
