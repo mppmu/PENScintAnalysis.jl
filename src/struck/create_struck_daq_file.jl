@@ -186,7 +186,7 @@ function create_struck_calibration_daq_file(settings::NamedTuple)
         end
         return(temp)
     end
-    timestamp = string(now())
+    timestamp = string(Dates.now())
     open("pmt_daq_dont_move.scala", "w") do file
         for ln in new_daq
             write(file, ln*"\n")
