@@ -14,7 +14,7 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
-function PENBBScan2D(settings, start, step, ends, HolderName, motor, login_payload; notebook=false)
+function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=false)
     
     # Timestamp for moved data
     timestamp = string(Dates.now())
@@ -172,7 +172,7 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
-function PENBBGridScan2D(settings, grid_filename, HolderName, motor, login_payload; notebook=false)
+function PENBBGridScan2D(settings, grid_filename, HolderName, motor; notebook=false)
     
     # Timestamp for moved data
     timestamp = string(Dates.now())
