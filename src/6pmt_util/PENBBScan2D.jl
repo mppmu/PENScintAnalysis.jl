@@ -15,7 +15,7 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
-function PENBBScan2D(settings<:Dict, start::Vector{Float64}, step::Vector{Float64}, ends::Vector{Float64}, measurement_name, motor::Vector{XIMCMotor}; notebook::Bool=false)
+function PENBBScan2D(settings, start::Vector{Float64}, step::Vector{Float64}, ends::Vector{Float64}, measurement_name, motor::Vector{XIMCMotor}; notebook::Bool=false)
     
     # Timestamp for moved data
     timestamp = string(Dates.now())
@@ -26,7 +26,7 @@ function PENBBScan2D(settings<:Dict, start::Vector{Float64}, step::Vector{Float6
 
     cur_dir = pwd()
     if start[1] < 0.0 || start[2] < 0.0 || ends[1] > 100.0 || ends[2] > 100.0
-        @info("Error: value out of range: you have to use values in the range x[0.,10.], y[0.,10.]")
+        @info("Error: value out of range: you have to use values in the range x[0.,100.], y[0.,100.]")
     else
         for i in collect(start[1]:step[1]:ends[1])
             XMoveMM(i,motor)
