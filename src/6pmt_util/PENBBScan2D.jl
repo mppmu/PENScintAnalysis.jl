@@ -1,5 +1,5 @@
 """
-        PENBBScan2D(settings<:Dict, start<:Vector, step<:Vector, ends<:Vector, HolderName::String, time_per_point::Int64, motor)
+        PENBBScan2D(settings<:Dict, start<:Vector, step<:Vector, ends<:Vector, measurement_name::String, motor)
 
 Function to perform an automate scan in 2D (x,y axis). You'll have to connect to your motor before starting this function.
 It will return a dictionary of the missed positions, if there are any.
@@ -9,12 +9,13 @@ It will return a dictionary of the missed positions, if there are any.
 - `start<:Vector`: Vector of start position e.g. [x_start,y_start] = [0.0,0.5]
 - `step<:Vector`: Vector of step size e.g. [x_step,y_step] = [1.0,1.0]
 - `ends<:Vector`: Vector of end position e.g. [x_end,y_end] = [90.0,90.0]
+- `measurement_name<:String`: Name of the measurement
 - `motor`: IO connection to the motorized stage
 - `notebook::Bool=false`: Set to true if you take data using a Juypter notebook
 
 ...
 """
-function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=false)
+function PENBBScan2D(settings<:Dict, start::Vector{Float64}, step::Vector{Float64}, ends::Vector{Float64}, measurement_name, motor::Vector{XIMCMotor}; notebook::Bool=false)
     
     # Timestamp for moved data
     timestamp = string(Dates.now())
@@ -22,7 +23,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
     missed_positions = Dict()
     missed_positions["x"] = []
     missed_positions["y"] = []
-    start_t = Dates.now()
+
     cur_dir = pwd()
     if start[1] < 0.0 || start[2] < 0.0 || ends[1] > 100.0 || ends[2] > 100.0
         @info("Error: value out of range: you have to use values in the range x[0.,10.], y[0.,10.]")
@@ -38,8 +39,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                 pos_y = PosY(motor)
 
 
-                #
-                ## Use lpad(pos_x) ?? --> only for integer values
+                # lpad only works with integers
                 if 10 <= pos_x < 100
                     pos_x = string("0", pos_x)
                 elseif pos_x < 10
@@ -59,8 +59,8 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
 
                 #
                 ## Sorting the output files in directories
-                name_file = string("2D_PEN_Scan_Holder_",HolderName,"_x_",pos_x,"_y_",pos_y,"_of_",settings["measurement_time"],"_seconds")
-                output_dir = settings["conv_data_dir"] * string("/", HolderName, "/x_",pos_x)
+                name_file = string("2D_PEN_Scan_Holder_",measurement_name,"_x_",pos_x,"_y_",pos_y,"_of_",settings["measurement_time"],"_seconds")
+                output_dir = settings["conv_data_dir"] * string("/", measurement_name, "/x_",pos_x)
                 
                 #
                 ## This conversion is just for compatibility
@@ -117,7 +117,7 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
                         if retry_num[1] > 3
                             push!(missed_positions["x"], i)
                             push!(missed_positions["y"], j)
-                            open("missing_log_" * HolderName * ".json",  "w") do f
+                            open("missing_log_" * measurement_name * ".json",  "w") do f
                                 JSON.print(f, missed_positions, 4)
                             end
                             done = true
@@ -138,9 +138,9 @@ function PENBBScan2D(settings, start, step, ends, HolderName, motor; notebook=fa
             ## Move x scan to ceph
             if settings["move_to_ceph"]
                 @info("Moving data to ceph. Please wait")
-                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * current_x_pos)
+                from_dir = joinpath(settings["conv_data_dir"], measurement_name * "/x_" * current_x_pos)
                 @info("Data will be moved from: " * from_dir)
-                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
+                to_dir   = joinpath(settings["dir_on_ceph"], measurement_name * "-" * timestamp * "/x_" * current_x_pos)
                 @info("Data will be moved to: " * to_dir)
                 !isdir(to_dir) ? mkpath(to_dir, mode= 0o775) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
@@ -157,7 +157,7 @@ export PENBBScan2D
 
 
 """
-        PENBBGridScan2D(settings<:Dict, start<:Vector, step<:Vector, ends<:Vector, HolderName::String, time_per_point::Int64, motor)
+        PENBBGridScan2D(settings<:Dict, start<:Vector, step<:Vector, ends<:Vector, measurement_name::String, time_per_point::Int64, motor)
 
 Function to perform an automate scan in 2D (x,y axis). You'll have to connect to your motor before starting this function.
 It will return a dictionary of the missed positions, if there are any.
@@ -172,13 +172,12 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
-function PENBBGridScan2D(settings, grid_filename, HolderName, motor; notebook=false)
+function PENBBGridScan2D(settings, grid_filename, measurement_name, motor; notebook=false)
     
     # Timestamp for moved data
     timestamp = string(Dates.now())
     
     grid = JSON.parsefile(grid_filename)
-    start_t = Dates.now()
     cur_dir = pwd()
 
     scan_x_rng = sort(parse.(Float64, keys(grid)))
@@ -204,6 +203,7 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor; notebook=fa
                 pos_x = PosX(motor)
                 pos_y = PosY(motor)
 
+                # lpad only works with integers
                 if 10 <= pos_x < 100
                     pos_x = string("0", pos_x)
                 elseif pos_x < 10
@@ -223,8 +223,8 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor; notebook=fa
 
                 #
                 ## Sorting the output files in directories
-                name_file = string("2D_PEN_Scan_Holder_",HolderName,"_x_",pos_x,"_y_",pos_y,"_of_",settings["measurement_time"],"_seconds")
-                output_dir = settings["conv_data_dir"] * string("/", HolderName, "/x_",pos_x)
+                name_file = string("2D_PEN_Scan_Holder_",measurement_name,"_x_",pos_x,"_y_",pos_y,"_of_",settings["measurement_time"],"_seconds")
+                output_dir = settings["conv_data_dir"] * string("/", measurement_name, "/x_",pos_x)
                 
                 #
                 ## This conversion is just for compatibility
@@ -317,9 +317,9 @@ function PENBBGridScan2D(settings, grid_filename, HolderName, motor; notebook=fa
             ## Move x scan to ceph
             if settings["move_to_ceph"]
                 @info("Moving data to ceph. Please wait")
-                from_dir = joinpath(settings["conv_data_dir"], HolderName * "/x_" * current_x_pos)
+                from_dir = joinpath(settings["conv_data_dir"], measurement_name * "/x_" * current_x_pos)
                 @info("Data will be moved from: " * from_dir)
-                to_dir   = joinpath(settings["dir_on_ceph"], HolderName * "-" * timestamp * "/x_" * current_x_pos)
+                to_dir   = joinpath(settings["dir_on_ceph"], measurement_name * "-" * timestamp * "/x_" * current_x_pos)
                 @info("Data will be moved to: " * to_dir)
                 !isdir(to_dir) ? mkpath(to_dir, mode= 0o775) : "dir exists"
                 mv(from_dir, to_dir, force=true)    
