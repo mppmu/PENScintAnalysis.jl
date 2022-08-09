@@ -70,7 +70,7 @@ function plot_wfanalysis(wfanalysis::DataFrames.DataFrame)
             )
             #=
             plot!(
-                mean(parent(wfanalysis[:waveform]), 2)[:],
+                StatsBase.mean(parent(wfanalysis[:waveform]), 2)[:],
                 color = :red, linewidth = 2,
                 label = "Averaged Signal Shape",
                 xlabel = "Sample [4ns]",

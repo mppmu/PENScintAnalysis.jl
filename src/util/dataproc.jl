@@ -25,8 +25,8 @@ function precalibrate_data(
     orig_prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
     orig_postbl_level = wf_range_sum(waveforms, postbl_range, window_weights(hamming, postbl_range))
 
-    # info("Mean original pre-pulse baseline level: $(mean(orig_prebl_level))")
-    # info("Mean original post-pulse baseline level: $(mean(orig_postbl_level))")
+    # info("Mean original pre-pulse baseline level: $(StatsBase.mean(orig_prebl_level))")
+    # info("Mean original post-pulse baseline level: $(StatsBase.mean(orig_postbl_level))")
 
     # wf_shift!(waveforms, waveforms, - (orig_prebl_level .+ orig_postbl_level) ./ 2)
     wf_shift!(waveforms, waveforms, - orig_prebl_level)
@@ -61,7 +61,7 @@ function analyse_waveforms(
     peak_range_short::UnitRange{Int} = 251:(251 + 11),
     noise_range::UnitRange{Int} = 180:(180+60)
 )
-    # info("Mean event rate: $(1 / mean(diff(precal_data[:timestamp]))) events/s")
+    # info("Mean event rate: $(1 / StatsBase.mean(diff(precal_data[:timestamp]))) events/s")
 
     waveforms = precal_data.waveform
 
@@ -70,8 +70,8 @@ function analyse_waveforms(
     prebl_level = wf_range_sum(waveforms, prebl_range, window_weights(hamming, prebl_range))
     postbl_level = wf_range_sum(waveforms, postbl_range, window_weights(hamming, postbl_range))
 
-    # info("Mean pre-pulse baseline level: $(mean(prebl_level))")
-    # info("Mean post-pulse baseline level: $(mean(postbl_level))")
+    # info("Mean pre-pulse baseline level: $(StatsBase.mean(prebl_level))")
+    # info("Mean post-pulse baseline level: $(StatsBase.mean(postbl_level))")
 
     peak_integral = wf_range_sum(waveforms, peak_range)
     peak_integral_short = wf_range_sum(waveforms, peak_range_short)

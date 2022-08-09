@@ -16,7 +16,7 @@ function findLocalMaxima(signal::Vector, threshold = 0 )
    if threshold != 0
       new_threshold = threshold
    else
-      ground_level = mean(signal) 
+      ground_level = StatsBase.mean(signal) 
       #rms  = sqrt(sum(signal[:].^2.) / length(signal[:]))
       new_threshold = ground_level + 15.
    end

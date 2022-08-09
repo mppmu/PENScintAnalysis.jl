@@ -10,7 +10,7 @@ removing +/- 5 samples around the peaks to avoid bias
 
 function getBaseline(signal::Vector; threshold = 14.0)
     Baseline = copy(signal)
-    peaks_threshold = mean(Baseline) + threshold # only peaks with amplitudes threshold units larger than the average
+    peaks_threshold = StatsBase.mean(Baseline) + threshold # only peaks with amplitudes threshold units larger than the average
     peak_pos = findLocalMaxima(Baseline,peaks_threshold)
     #peak_pos = findall(x -> x > peaks_threshold, signal)
     index_to_delete = []
@@ -27,7 +27,7 @@ function getBaseline(signal::Vector; threshold = 14.0)
         end
     end
     deleteat!(Baseline,index_to_delete)
-    baseline = mean(Baseline)
+    baseline = StatsBase.mean(Baseline)
 end
 export getBaseline
 
