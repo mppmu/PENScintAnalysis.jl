@@ -15,6 +15,7 @@ It will return a dictionary of the missed positions, if there are any.
 
 ...
 """
+
 function PENBBScan2D(settings, start::Vector{Float64}, step::Vector{Float64}, ends::Vector{Float64}, measurement_name, motor; notebook::Bool=false)
     
     # Timestamp for moved data
