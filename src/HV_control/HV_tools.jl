@@ -40,6 +40,11 @@ end
 """
         get_measured_HV(ip, login_payload)
 Get measured voltage for channels 1 to 8. This may ary from the set value.
+...
+# Arguments
+- `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
+- `login_payload`: Login payload for the device
+...
 """
 
 function get_measured_HV(ip, login_payload)
@@ -68,6 +73,11 @@ export get_measured_HV
 """
         get_set_HV(ip = ip, login_payload)
 Get set voltage for channels 1 to 8. This may vary from the measured value.
+...
+# Arguments
+- `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
+- `login_payload`: Login payload for the device
+...
 """
 
 function get_set_HV(ip, login_payload)
@@ -101,9 +111,9 @@ Set voltage for one channel.
 - `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
 - `c::Int`: Channel number
 - `v::Real`: HV level
+- `login_payload`: Login payload for the device
 ...
 """
-
 function set_HV(ip::String, c::Int, v::Real, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
@@ -200,6 +210,18 @@ end
 export set_rampspeedDown
 
 
+"""
+    voltage_goto(ip::String, channel::Int, value::Real, login_payload)
+Got to voltage for one channel.
+...
+# Arguments
+- `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
+- `channel::Int`: Channel number
+- `value::Real`: HV level
+- `login_payload`: Login payload for the device
+...
+"""
+
 function voltage_goto(ip::String, channel::Int, value::Real, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
@@ -216,8 +238,5 @@ function voltage_goto(ip::String, channel::Int, value::Real, login_payload)
            d = JSON.parse(String(readavailable(ws)))
            push!(results, d)
     end;
-    #d = results[2][1]
-    #println(results)
-    #return d["trigger"]
 end
 export voltage_goto
