@@ -28,7 +28,6 @@ function _issue_command(ip, login_payload, command::String, item::String, channe
            write(ws, login_payload)
            d = JSON.parse(String(readavailable(ws)))
            session_id = d["i"]
-           #@show session_id
            write(ws, _construct_request(session_id, command, item, channel, value, unit))
            d = JSON.parse(String(readavailable(ws)))
            push!(results, d)
@@ -39,7 +38,7 @@ end
 
 """
         get_measured_HV(ip, login_payload)
-Get measured voltage for channels 1 to 8. This may ary from the set value.
+Get measured voltage for all channels. This may ary from the set value.
 ...
 # Arguments
 - `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
@@ -49,30 +48,25 @@ Get measured voltage for channels 1 to 8. This may ary from the set value.
 
 function get_measured_HV(ip, login_payload)
     results = []
+    response = []
     HTTP.WebSockets.open(ip) do ws
-               write(ws, login_payload)
-               d = JSON.parse(String(readavailable(ws)))
-               session_id = d["i"]
-               #@show session_id
-               write(ws, _construct_request(session_id, "getItem", "Status.voltageMeasure"))
-               d = JSON.parse(String(readavailable(ws)))
-               push!(results, d)
-           end;
-    d = results[1]
-    return parse(Float64,d[1]["c"][1]["d"]["v"]), 
-        parse(Float64,d[1]["c"][2]["d"]["v"]),
-        parse(Float64,d[1]["c"][3]["d"]["v"]),
-        parse(Float64,d[1]["c"][4]["d"]["v"]),
-        parse(Float64,d[1]["c"][5]["d"]["v"]),
-        parse(Float64,d[1]["c"][6]["d"]["v"]),
-        parse(Float64,d[1]["c"][7]["d"]["v"]),
-        parse(Float64,d[1]["c"][8]["d"]["v"])
+        write(ws, login_payload)
+        d = JSON.parse(String(readavailable(ws)))
+        session_id = d["i"]
+        write(ws, _construct_request(session_id, "getItem", "Status.voltageMeasure"))
+        d = JSON.parse(String(readavailable(ws)))
+        push!(results, d)
+    end;
+    for resp in results[1][1]["c"]
+        push!(response, parse(Float64, resp["d"]["v"]))
+    end
+    return response
 end
 export get_measured_HV
 
 """
         get_set_HV(ip = ip, login_payload)
-Get set voltage for channels 1 to 8. This may vary from the measured value.
+Get set voltage for all channels. This may vary from the measured value.
 ...
 # Arguments
 - `ip::String`: IP string of the HV device, e.g. "ws://123.123.123.123:8080" 
@@ -82,26 +76,22 @@ Get set voltage for channels 1 to 8. This may vary from the measured value.
 
 function get_set_HV(ip, login_payload)
     results = []
+    response = []
     HTTP.WebSockets.open(ip) do ws
-               write(ws, login_payload)
-               d = JSON.parse(String(readavailable(ws)))
-               session_id = d["i"]
-               #@show session_id
-               write(ws, _construct_request(session_id, "getItem", "Control.voltageSet"))
-               d = JSON.parse(String(readavailable(ws)))
-               push!(results, d)
-           end;
-    d = results[1]
-    return parse(Float64,d[1]["c"][1]["d"]["v"]), 
-        parse(Float64,d[1]["c"][2]["d"]["v"]), 
-        parse(Float64,d[1]["c"][3]["d"]["v"]), 
-        parse(Float64,d[1]["c"][4]["d"]["v"]), 
-        parse(Float64,d[1]["c"][5]["d"]["v"]), 
-        parse(Float64,d[1]["c"][6]["d"]["v"]), 
-        parse(Float64,d[1]["c"][7]["d"]["v"]), 
-        parse(Float64,d[1]["c"][8]["d"]["v"])
+            write(ws, login_payload)
+            d = JSON.parse(String(readavailable(ws)))
+            session_id = d["i"]
+            write(ws, _construct_request(session_id, "getItem", "Control.voltageSet"))
+            d = JSON.parse(String(readavailable(ws)))
+            push!(results, d)
+        end;
+    for resp in results[1][1]["c"]
+        push!(response, parse(Float64, resp["d"]["v"]))
+    end
+    return response
 end
 export get_set_HV
+
 
 """
         set_HV(ip::String, c::Int, v::Real, login_payload)
