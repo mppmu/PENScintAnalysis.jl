@@ -1,4 +1,15 @@
-export mymotor
+"""
+		mymotor()::Array{XIMCMotor,1}
+or
+		mymotor(device::String, ports)::Array{XIMCMotor,1}
+Initialize the motors.
+...
+# Arguments
+- `device::String`: Example: "gelab-serial03"
+- `ports`: Example: ports = [2001, 2011]
+...
+"""
+
 function mymotor()::Array{XIMCMotor,1}
 	m = [
            XIMCMotor("gelab-serial03", 2001),
@@ -16,6 +27,7 @@ function mymotor(device::String, ports)::Array{XIMCMotor,1}
 	Initialize(m)
 	return m
 end
+export mymotor
 
 function _Initialize(motor::XIMCMotor)
 	fbs1 = motor[Feedback, Settings]
@@ -63,10 +75,6 @@ function Initialize(motor::Array{XIMCMotor,1})
     @info "Motors succefully initialized!"
 end
 
-
-
-#Calibration functions
-
 function _Calibrate(motor::XIMCMotor)
 	motor[Move, Absolute] = :home
 	#block until it arrives "home"
@@ -83,23 +91,32 @@ function _Calibrate(motor::XIMCMotor)
 	motor[Position] = pos
 end
 
-export Calibrate
+
+"""
+		Calibrate(motor::Array{XIMCMotor,1})
+Calibrate the x and y motors.
+...
+# Arguments
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+...
+"""
 function Calibrate(motor::Array{XIMCMotor,1})
     CalibrateX(motor)
     CalibrateY(motor)
 end
+export Calibrate
 
-export CalibrateX
 function CalibrateX(motor::Array{XIMCMotor,1})
     @info "Calibrating X motor stage"
     _Calibrate(motor[1])
 end
+export CalibrateX
 
-export CalibrateY
 function CalibrateY(motor::Array{XIMCMotor,1})
     @info "Calibrating Y motor stage"
     _Calibrate(motor[2])
 end
+export CalibrateY
 
 
 #Movement functions
@@ -126,17 +143,39 @@ function _MoveMM(pos, motor::XIMCMotor; block_till_arrival = true)
 
 end
 
-export XMoveMM
-function XMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival = true)
+
+"""
+		XMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival = true)
+Move x motor to position between 0 and 100 mm
+...
+# Arguments
+- `pos`: Integer or Float, position in mm
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+- `block_till_arrival::Bool`: Blocks the script while motor is still moving
+...
+"""
+function XMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival::Bool = true)
     @info("Moving X-motor to $(pos)mm\n")
 	_MoveMM(pos, motor[1], block_till_arrival = block_till_arrival)
 end
+export XMoveMM
 
-export YMoveMM
-function YMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival = true)
+
+"""
+		YMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival = true)
+Move y motor to position between 0 and 100 mm
+...
+# Arguments
+- `pos`: Integer or Float, position in mm
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+- `block_till_arrival::Bool`: Blocks the script while motor is still moving
+...
+"""
+function YMoveMM(pos, motor::Array{XIMCMotor,1}; block_till_arrival::Bool = true)
     @info("Moving Y-motor to $(pos)mm\n")
     _MoveMM(pos, motor[2], block_till_arrival = block_till_arrival)
 end
+export YMoveMM
 
 
 #Position functions
@@ -146,18 +185,42 @@ function _Pos(motor::XIMCMotor)::Float64
     return motor[Position].pos/(-400.)
 end
 
-export PosX
+"""
+		PosX(motor::Array{XIMCMotor,1})
+Get current position of the x motor. Please calibrate the motor after initializing them.
+...
+# Arguments
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+...
+"""
 function PosX(motor::Array{XIMCMotor,1})
 	_Pos(motor[1])
 end
+export PosX
 
-export PosY
+"""
+		PosY(motor::Array{XIMCMotor,1})
+Get current position of the y motor. Please calibrate the motor after initializing them.
+...
+# Arguments
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+...
+"""
 function PosY(motor::Array{XIMCMotor,1})
 	_Pos(motor[2])
 end
+export PosY
 
-export Pos
+"""
+		Pos(motor::Array{XIMCMotor,1})
+Get current position of both motors. Please calibrate the motor after initializing them.
+...
+# Arguments
+- `motor::Array{XIMCMotor,1}`: Result of mymotor()
+...
+"""
 function Pos(motor::Array{XIMCMotor,1})
 	println("X: \t$(PosX(motor)) mm")
 	println("Y: \t$(PosY(motor)) mm")
 end
+export Pos
