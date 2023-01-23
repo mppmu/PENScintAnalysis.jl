@@ -73,7 +73,7 @@ export wf_range_sum
 # function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer})
 function wf_range_sum(waveforms, r::AbstractUnitRange{<:Integer})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
-    @threads for i in eachindex(waveforms)
+    Threads.@threads for i in eachindex(waveforms)
         R[i] = fastsum(view(waveforms[i], r))
     end
     R
@@ -84,11 +84,12 @@ end
 # function wf_range_sum(waveforms::WFSamples, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
 function wf_range_sum(waveforms, r::AbstractUnitRange{<:Integer}, weights::AbstractVector{<:Real})
     R = Vector{eltype(flatview(waveforms))}(undef, size(waveforms))
-    @threads for i in eachindex(waveforms)
+    Threads.@threads for i in eachindex(waveforms)
         R[i] = fastvecdot(view(waveforms[i], r), weights)
     end
     R
 end
+export wf_range_sum
 
 """
 """
@@ -128,3 +129,4 @@ function wf_shift_simd!(output, input, x::Real)
 
     output
 end
+export wf_shift_simd!

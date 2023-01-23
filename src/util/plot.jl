@@ -18,9 +18,9 @@ end
 export plot_pulse_hist
 
 
-@userplot PlotPulseHist
+Plots.@userplot PlotPulseHist
 
-@recipe function f(p::PlotPulseHist; ybins = 1:1:0)
+Plots.@recipe function f(p::PlotPulseHist; ybins = 1:1:0)
     waveforms = p.args[1]
 
     ybinning = if isempty(ybins)
@@ -30,7 +30,7 @@ export plot_pulse_hist
         ybins
     end
 
-    @series begin
+    Plots.@series begin
         n = length(eachindex(waveforms))
         h = pulse_hist(waveforms, ybinning)
         x := h.edges[1]
@@ -47,12 +47,12 @@ end
 # export plot_pulse_hist2
 
 """
-    plot_wfanalysis(wfanalysis::DataFrame)
+    plot_wfanalysis(wfanalysis::DataFrames.DataFrame)
 
 Plot histograms of `wfanlysis.peak_integral`, `wfanlysis.peak_integral_short`
 distribution of pre / post pulse baselines and PSD parameters.
 """
-function plot_wfanalysis(wfanalysis::DataFrame)
+function plot_wfanalysis(wfanalysis::DataFrames.DataFrame)
     E_max = maximum(reduced_maximum.([
         wfanalysis.peak_integral,
         wfanalysis.peak_integral_short
@@ -70,7 +70,7 @@ function plot_wfanalysis(wfanalysis::DataFrame)
             )
             #=
             plot!(
-                mean(parent(wfanalysis[:waveform]), 2)[:],
+                StatsBase.mean(parent(wfanalysis[:waveform]), 2)[:],
                 color = :red, linewidth = 2,
                 label = "Averaged Signal Shape",
                 xlabel = "Sample [4ns]",
@@ -135,7 +135,7 @@ export plot_wfanalysis
 
 """
 """
-function plot_wfanalysis(pred::Function, wfanalysis::DataFrame, pred_cols::Symbol...)
+function plot_wfanalysis(pred::Function, wfanalysis::DataFrames.DataFrame, pred_cols::Symbol...)
     idxs = entrysel(pred, wfanalysis, pred_cols...)
     plot_wfanalysis(wfanalysis[idxs, :])
 end
@@ -143,11 +143,11 @@ end
 export plot_wfanalysis
 
 """
-    time_norm_hist(wfanalysis::DataFrame, col::Symbol, bins::AbstractVector)
+    time_norm_hist(wfanalysis::DataFrames.DataFrame, col::Symbol, bins::AbstractVector)
 
 Rate normalized histogram of selected col of wfanalysis.
 """
-function time_norm_hist(wfanalysis::DataFrame, col::Symbol, bins::AbstractVector)
+function time_norm_hist(wfanalysis::DataFrames.DataFrame, col::Symbol, bins::AbstractVector)
     X = wfanalysis[col]
     timestamp = wfanalysis.timestamp
     rate = inv(maximum(timestamp) - minimum(timestamp))
