@@ -1,4 +1,7 @@
 # This file is a part of PENScintAnalysis.jl, licensed under the MIT License (MIT).
+include("dataproc.jl")
+include("plot.jl")
+include("stat_functions.jl")
 
 log10orNaN(x) = (x <= 0) ? typeof(x)(NaN) : log10(x)
 export log10orNaN
@@ -17,7 +20,6 @@ function entrysel(predicate, ds, colname)
     f(xs) = predicate(xs...)
     find(f, zip(columns...))
 end
-
 export entrysel
 
 # This functions kills all java processes that have been running longer than a given time "min_time_s"
@@ -41,3 +43,4 @@ function kill_all_java_processes(min_time_s::Real = 0)
         end
     end
 end
+# export kill_all_java_processes

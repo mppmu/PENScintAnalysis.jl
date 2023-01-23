@@ -20,3 +20,5 @@ end
 function wfIntegral(signal)
     return sum( signal )
 end
+
+export wfIntegral

@@ -69,9 +69,10 @@ function struck_to_h5(filenames; conv_data_dir="../conv_data/")
     dset = read_data_from_struck(filenames)
     
     HDF5.h5open(conv_data_dir*real_filename*".h5", "w") do h5f
-        LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=VectorOfArrays(dset.samples)))
+        LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=ArraysOfArrays.VectorOfArrays(dset.samples)))
     end
 end
+export struck_to_h5
 
 
 
@@ -80,13 +81,14 @@ function readh5(filename::String)
         LegendHDF5IO.readdata( h5f, "data")
     end
 end
+export readh5
 
 function writeh5(filename::String, typed_table)
     HDF5.h5open(filename, "w") do h5f
         LegendHDF5IO.writedata( h5f, "data", typed_table)
     end
 end
-
+export writeh5
 
 
 function getUserInput(T=String,msg="")
@@ -102,6 +104,7 @@ function getUserInput(T=String,msg="")
         end
     end
 end
+export getUserInput
 
 
 """
@@ -128,7 +131,7 @@ function get_h5_info_old(filename::String)
         return info
     end
 end
-
+export get_h5_info_old
 
 
 """
@@ -147,10 +150,10 @@ Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
 """
 function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
     h5open(filename, "r") do h5f
-        tt = Table(
+        tt = TypedTables.Table(
             chid = Int32[],
             timestamp = Float64[],
-            samples   = VectorOfArrays(Array{Int32,1}[]),
+            samples   = ArraysOfArrays.VectorOfArrays(Array{Int32,1}[]),
             ) 
         n1 = 0
         n2 = 0
@@ -185,7 +188,7 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
                 end
             end
 
-            append!(tt, Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=VectorOfArrays(pulses)))
+            append!(tt, TypedTables.Table(chid=temp["chid"][1:length(pulses)], timestamp=temp["timestamps"][1:length(pulses)], samples=ArraysOfArrays.VectorOfArrays(pulses)))
             next!(p)
             n2 += 1
             if nbreak || n2 == nsubfiles
@@ -198,8 +201,9 @@ function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles
         
         tt_ch = Dict()
         for ch in chids
-            tt_ch[string(ch)] = tt |> @select(:chid, :timestamp, :samples) |> @filter(_.chid == ch) |> Table;
+            tt_ch[string(ch)] = tt |> Query.@select(:chid, :timestamp, :samples) |> Query.@filter(_.chid == ch) |> TypedTables.Table;
         end
         return tt_ch
     end
 end
+export read_old_h5_structure

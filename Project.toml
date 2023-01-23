@@ -1,6 +1,6 @@
 name = "PENScintAnalysis"
-uuid = "8765165d-35de-4c52-90e3-bc2648a91945"
-authors = ["ill_f "]
+uuid = "570a3f4c-aee3-411c-bc3a-94dd7ea4d3ec"
+authors = ["Felix Fischer <ffischer@mpp.mpg.de>"]
 version = "0.1.0"
 
 [deps]

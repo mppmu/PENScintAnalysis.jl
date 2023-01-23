@@ -19,5 +19,4 @@ function peakIntegral(signal::Vector, peakPosition = 1)
     end
     integral
 end
-
-
+export peakIntegral

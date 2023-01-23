@@ -22,15 +22,15 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
     chid    = Int32[]
     energy  = []
         
-    input = open(CompressedFile(filename))
-    reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents)
+    input = open(CompressedStreams.CompressedFile(filename))
+    reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents)
 
     sorted = 0
     nchunks = 0
     
     for unsorted in reader
         nchunks += 1
-        sorted = sortevents(unsorted)
+        sorted = SIS3316Digitizers.sortevents(unsorted)
         #return sorted
         for evt in eachindex(sorted)
             channels = collect(keys(sorted[evt]))
@@ -63,9 +63,9 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
                 break 
             end
         end
-        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)
+        return TypedTables.Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
     else
-        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)
+        return TypedTables.Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
     end
 end
 
@@ -80,15 +80,15 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
     energy  = []
     
     for filename in filenames
-        input = open(CompressedFile(filename))
-        reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents) 
+        input = open(CompressedStreams.CompressedFile(filename))
+        reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents) 
 
         sorted = 0
         nchunks = 0
 
         for unsorted in reader
             nchunks += 1
-            sorted = sortevents(unsorted)
+            sorted = SIS3316Digitizers.sortevents(unsorted)
             #return sorted
             for evt in eachindex(sorted)
                 channels = collect(keys(sorted[evt]))
@@ -122,11 +122,14 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
                 break 
             end
         end
-        return Table(evt_t = t, samples = VectorOfArrays(s), chid = c)
+        return TypedTables.Table(evt_t = t, samples = ArraysOfArrays.VectorOfArrays(s), chid = c)
     else
-        return Table(evt_t = evt_t, samples = VectorOfArrays(samples), chid = chid)
+        return TypedTables.Table(evt_t = evt_t, samples = ArraysOfArrays.VectorOfArrays(samples), chid = chid)
     end
 end
+export read_data_from_struck
+
+
 """
         read_raw_data(filename:String; nevents::Int=typemax(Int))
 
@@ -140,8 +143,8 @@ Reads one Struck (*.dat) file and returns a DataFrame. Keys: channel, timestamp,
 """
 function read_raw_data(filename::String; nevents::Int=typemax(Int))
 
-    input = open(CompressedFile(filename))
-    reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents)
+    input = open(CompressedStreams.CompressedFile(filename))
+    reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents)
     df = DataFrame(
         evt_t   = Float64[],
         samples = Array{Int32,1}[],
@@ -155,7 +158,7 @@ function read_raw_data(filename::String; nevents::Int=typemax(Int))
     stop_reading = false
     for unsorted in reader
         nchunks += 1
-        sorted = sortevents(unsorted)
+        sorted = SIS3316Digitizers.sortevents(unsorted)
         for evt in eachindex(sorted)
             ch = collect(keys(sorted[evt]))[1]
             push!(df, (time(sorted[evt][ch]), sorted[evt][ch].samples, sorted[evt][ch].chid, sorted[evt][ch].energy))
@@ -182,8 +185,8 @@ function read_raw_data(filenames; nevents=typemax(Int))
             energy  = [])
     
     for filename in filenames
-        input = open(CompressedFile(filename))
-        reader = eachchunk(input, SIS3316Digitizers.UnsortedEvents)
+        input = open(CompressedStreams.CompressedFile(filename))
+        reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents)
         df = DataFrame(
             evt_t   = Float64[],
             samples = Array{Int32,1}[],
@@ -197,7 +200,7 @@ function read_raw_data(filenames; nevents=typemax(Int))
         stop_reading = false
         for unsorted in reader
             nchunks += 1
-            sorted = sortevents(unsorted)
+            sorted = SIS3316Digitizers.sortevents(unsorted)
             for evt in eachindex(sorted)
                 ch = collect(keys(sorted[evt]))[1]
                 push!(df, (time(sorted[evt][ch]), sorted[evt][ch].samples, sorted[evt][ch].chid, sorted[evt][ch].energy))
@@ -217,3 +220,4 @@ function read_raw_data(filenames; nevents=typemax(Int))
     end
         return DataFrame(channel = df_all.chid, timestamp = df_all.evt_t, waveform = df_all.samples, energy = df_all.energy)
 end
+export read_raw_data

@@ -1,12 +1,11 @@
-TODO PENScintSignalAnalysis.jl
+TODO PENScintAnalysis.jl
 ==============================
 
-* Structs SimilarWaveforms and Waveform (both immutable, so they can be a bitstype when using UnsafeArrays).
-
-* Forward functions on waveforms::Waveforms to f(waveforms.samples)
-
-* Write a package to ease creation of custom SOA types ("CustomStructsOfArrays.jl"?).:
-
-    * Common super-type "[Abstract]CustomStructOfArrays" for common methods?
-    * Use generated functions instead of macros? Support for `uview()`?
-    * Broadcast-like behaviour: Array length one implies same value for all entries.
+* Test functionality after merging `PENScintAnalysis.jl` and `PENBBControl.jl`.
+* Create tutorial for dark box data taking
+* Perform test data taking run to check if all functions work
+* Write documentation
+* Write additional documentation in GeDet Wiki
+* Remove deprecated functions
+* Introduce common function names
+* Do we need code for the spectrometer setup?
