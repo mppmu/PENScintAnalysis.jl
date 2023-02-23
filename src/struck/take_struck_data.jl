@@ -118,7 +118,6 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         end
 
         if callback != false
-            @info "Received chunk " * new_file
             data = read_data_from_struck(new_file, filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
             callback(data)
         end
@@ -142,19 +141,12 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             if i <= length(new_files)
                 while h5size <= limit && i <= length(new_files)
                     h5size += stat(new_files[i]).size/1024^2
-                    @info "Found file " * string(h5size)
                     push!(compress, i)
                     i += 1
                 end
             end
             push!(h5files, compress)
         end
-
-        print(h5files)
-
-        @info "Conversion"
-
-        print(new_files)
 
         i = 1
         p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
