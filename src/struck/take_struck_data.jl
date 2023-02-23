@@ -64,12 +64,10 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     i = 1
 
     while i <= settings.number_of_measurements && !stop_taking()
-        @info "Chunk " * string(i) * " - Receiving"
-
         # Total tries: 3
         n_try = 0
         while n_try <= 2
-            @info "Try " * string(n_try + 1) * "/3"
+            @info "Chunk " * string(i) * " - Receiving (Try " * string(n_try + 1) * "/3)"
 
             # Maximum time we expect the script to run: 1.5*measurement_time; after that, throw exception
             t_start = now()
@@ -93,15 +91,13 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         end
 
         # n_try = 4 => previous 3 tries failed
-        if n_try == 4
+        if n_try == 3
             rm("pmt_daq_dont_move.scala")
             cd(original_dir)
 
             @error "Process timed out"
             throw(ErrorException("Measurement failed. Make sure the fadc is running, you're running the code within the legend(-base) container on glab-pc01 and correct permissions are set on the directory. If you can ping the struck and think everything is set up correctly, do a test using struck-test-gui. Execute that on a Linux host with Desktop functionality connecting via ssh -X gelab@gelab-pc.. and check connection as well as Test in the sub-menu. This helps to spin up a Struck if a restart alone did not help"))            
         end
-        
-        @info "Chunk " * string(i) * " - Received"
 
         # Update list of new files after each measurement for callback usage
         files = Glob.glob(joinpath(settings.output_basename * "*.dat"))
@@ -114,7 +110,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             if file_change_time - t_check > 0
                 new_file = files[j]
                 push!(new_files, new_file)
-                @info "Saved results of iteration " * string(i) * " in " * new_file
+                @info "Chunk " * string(i) * " - Received (" * new_file * ")"
                 t_check = file_change_time
                 break
             end
@@ -126,6 +122,8 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             data = read_data_from_struck(new_file, filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
             callback(data)
         end
+
+        i = i + 1
     end
 
     #chmod(pwd(), 0o775, recursive=true)
