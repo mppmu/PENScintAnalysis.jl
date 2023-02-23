@@ -77,6 +77,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         if process_running(process)
             kill(process)
             rm("pmt_daq_dont_move.scala")
+            cd(current_dir)
 
             @error "Process timed out"
             throw(ErrorException("Process timed out"))            
@@ -89,6 +90,8 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         # Update list of new files after each measurement for callback usage
         cd(current_dir)
         files = Glob.glob(joinpath(settings.data_dir, settings.output_basename * "*.dat"))
+
+        @info "Getting name of created file"
     
         # Assumption: Only one file will be added per execution. Otherwise we'd to sort files by file_change_time and get all items with file_change_time > t_check
         j = 1
@@ -98,11 +101,14 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             if file_change_time - t_check > 0
                 new_file = files[j]
                 push!(new_files, new_file)
+                @info "Saved results of iteration " * string(i) * " in " * new_file
                 t_check = file_change_time
                 break
             end
             j += 1
         end
+
+        @info "Finalized iteration " *  string(i)
 
         if callback != false
             @info "Received chunk " * new_file
@@ -110,6 +116,9 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             callback(data)
         end
     end
+
+    @info "Hello World"
+
     #chmod(pwd(), 0o775, recursive=true)
     cd(settings.data_dir)
     rm("pmt_daq_dont_move.scala")
