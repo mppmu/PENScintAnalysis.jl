@@ -69,7 +69,7 @@ function read_data_from_struck(filename::String; filter_faulty_events=false, coi
     end
 end
 
-function read_data_from_struck(filenames; filter_faulty_events=false, coincidence_interval = 4e-9)
+function read_data_from_struck(filenames::Vector{String}; filter_faulty_events=false, coincidence_interval = 4e-9)
     if split(filenames[1], ".")[end] != "dat"
             println("Wrong fileformat!")
             return []
@@ -80,6 +80,7 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
     energy  = []
     
     for filename in filenames
+        @info filename
         input = open(CompressedStreams.CompressedFile(filename))
         reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents) 
 
@@ -88,8 +89,10 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
 
         for unsorted in reader
             nchunks += 1
+            @info "Chunk " * string(nchunks)
             sorted = SIS3316Digitizers.sortevents(unsorted)
             #return sorted
+            @info "Chunk " * string(nchunks) * " sorted"
             for evt in eachindex(sorted)
                 channels = collect(keys(sorted[evt]))
                 for ch in channels
@@ -100,10 +103,14 @@ function read_data_from_struck(filenames; filter_faulty_events=false, coincidenc
                 end
             end
             empty!(sorted)
+            @info "Wrote chunk " * string(nchunks)
         end
         close(input)
+        @info "Closed chunk " * string(nchunks)
     end
+    
     if filter_faulty_events
+        @info "Filtering faulty events"
         t = Float64[]
         s = Array{Int32,1}[]
         c = Int32[]

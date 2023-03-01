@@ -38,7 +38,7 @@ function struck_to_h5(filename::AbstractString; conv_data_dir::AbstractString=".
     end
 end
 
-function struck_to_h5(filenames::Array{AbstractString,1}; conv_data_dir::AbstractString="../conv_data/")
+function struck_to_h5(filenames::Vector{String}; conv_data_dir::AbstractString="../conv_data/")
     for filename in filenames
         if !isfile(filename)
             return "File does not exist: "*filename
@@ -72,7 +72,6 @@ function struck_to_h5(filenames::Array{AbstractString,1}; conv_data_dir::Abstrac
         LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=ArraysOfArrays.VectorOfArrays(dset.samples)))
     end
 end
-export struck_to_h5
 
 
 """
@@ -82,12 +81,13 @@ creates .hdf5 files based on them
 Additionally, allows splitting of .h5 files to limit their filesize and
 takes care of calibration_data, coincidence_interval, filter_faulty_events
 """
-function struck_to_h5(filenames::Array{AbstractString,1}, settings::NamedTuple; conv_data_dir::AbstractString="../conv_data/", calibration_data::Bool=false)
+function struck_to_h5(filenames::Vector{String}, settings::NamedTuple; conv_data_dir::AbstractString="../conv_data/", calibration_data::Bool=false)
     limit   = settings.h5_filesize_limit
     h5size  = 0
-    h5files = AbstractString[]
+    h5files = Array{Vector,1}()
     i = 1
     while i <= length(filenames)
+        @info "Converting " * filenames[i]
         compress = [i]
         h5size   = stat(filenames[i]).size/1024^2
         i += 1
@@ -102,12 +102,15 @@ function struck_to_h5(filenames::Array{AbstractString,1}, settings::NamedTuple; 
     end
 
     i = 1
+    @info "Converting"
     p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(filenames))*" files to "*string(length(h5files))*" HDF5...", 50)
     while i <= length(h5files)
+        @info filenames[h5files[i]]
         data = read_data_from_struck(filenames[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
         if calibration_data
             writeh5(joinpath(conv_data_dir, "calibration-data_" * split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"), data)
         else
+            @info "Writing to " * string(joinpath(conv_data_dir, split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"))
             writeh5(joinpath(conv_data_dir, split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"), data)
         end
         
@@ -115,6 +118,7 @@ function struck_to_h5(filenames::Array{AbstractString,1}, settings::NamedTuple; 
         i += 1
     end
 end
+export struck_to_h5
 
 
 function readh5(filename::AbstractString)
