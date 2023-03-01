@@ -5,7 +5,7 @@ using Dates
 
 Creates an individual `pmt_daq.scala` file and takes data which are converted to a HDF5 file afterwards.
 If callback is a function, it will be executed with the data of each taken measurement
-stop_taking is a function that will be called before any iteration. If it returns true, all remaining data_taking will be skipped. Note that data processing may still take place.
+stop_taking is a function that will be called beforeF any iteration. If it returns true, all remaining data_taking will be skipped. Note that data processing may still take place.
 ...
 # Arguments
 - `settings::NamedTuple`: NamedTuple containing all settings. See Example.
@@ -13,8 +13,8 @@ stop_taking is a function that will be called before any iteration. If it return
 # Example settings
 - `settings = (fadc = "gelab-fadc08",` 
 `output_basename = "test-measurement",`
-`data_dir = "./data/",`
-`conv_data_dir = "./conv_data/",`
+`data_dir = "../data/",`
+`conv_data_dir = "../conv_data/",`
 `measurement_time = 20,`
 `number_of_measurements = 5,`
 `channels = [1,2,3,4,5,6],`
@@ -137,7 +137,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     
     if !settings.skip_post_processing
         @info "Doing post-processing"
-        struck_to_hdf5(settings, new_files; calibration_data=calibration_data)
+        struck_to_h5(new_files, settings; conv_data_dir=conv_data_dir, calibration_data=calibration_data)
     end
 
     if settings.delete_dat
@@ -151,41 +151,3 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     cd(original_dir)
 end
 export take_struck_data
-
-"""
-Reads in the created .dat files and creates .hdf5 files based on them
-"""
-function struck_to_hdf5(settings::NamedTuple, new_files::Array{String,1}; calibration_data::Bool=false)
-    limit   = settings.h5_filesize_limit
-    h5size  = 0
-    h5files = []
-    i = 1
-    while i <= length(new_files)
-        compress = [i]
-        h5size   = stat(new_files[i]).size/1024^2
-        i += 1
-        if i <= length(new_files)
-            while h5size <= limit && i <= length(new_files)
-                h5size += stat(new_files[i]).size/1024^2
-                push!(compress, i)
-                i += 1
-            end
-        end
-        push!(h5files, compress)
-    end
-
-    i = 1
-    p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
-    while i <= length(h5files)
-        data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
-        if calibration_data
-            writeh5(joinpath(conv_data_dir, "calibration-data_" * split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
-        else
-            writeh5(joinpath(conv_data_dir, split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
-        end
-        
-        ProgressMeter.next!(p)
-        i += 1
-    end
-end
-export struck_to_hdf5
