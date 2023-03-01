@@ -34,7 +34,7 @@ stop_taking is a function that will be called before any iteration. If it return
 ...
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, callback=false, stop_taking = ()->false)
-    @info("Updated: 2023-02-23")
+    @info("Updated: 2023-03-01")
     !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o775) : "Path exists"
     
     !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o775) : "Path exists"
@@ -60,23 +60,30 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     #p = ProgressMeter.Progress(settings.number_of_measurements, 1, "Measurement ongoing...", 50)
     chmod(pwd(), 0o775, recursive=true)
     
-    new_files = []
+    new_files = String[]
     i = 1
+    timeout_string = "Futures timed out after [5000 milliseconds]"
 
     while i <= settings.number_of_measurements && !stop_taking()
-        # Total tries: 3
+        # Total tries: 5
         n_try = 0
-        while n_try <= 2
-            @info "Chunk " * string(i) * " - Receiving (Try " * string(n_try + 1) * "/3)"
+        while n_try <= 4
+            @info "Chunk " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try + 1) * "/5)"
 
             # Maximum time we expect the script to run: 1.5*measurement_time; after that, throw exception
+
             t_start = now()
             process = run(`./pmt_daq_dont_move.scala`, wait=false)
             while (now() - t_start).value < 1.5*1000*settings.measurement_time
-                if process_exited(process)
+                timeout_detected = occursin(timeout_string, read(process, String))
+		
+                if process_exited(process) || timeout_detected
+                    if timeout_detected
+                        @warn "Script timed out. Attempting restart"
+                    end
                     break
                 end
-                sleep(0.5)
+                sleep(2)
             end
 
             # If process finised within time, no retries neccessary
@@ -90,8 +97,8 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             end
         end
 
-        # n_try = 4 => previous 3 tries failed
-        if n_try == 3
+        # n_try = 5 => previous 3 tries failed
+        if n_try == 5
             rm("pmt_daq_dont_move.scala")
             cd(original_dir)
 
@@ -129,38 +136,8 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     rm("pmt_daq_dont_move.scala")
     
     if !settings.skip_post_processing
-        @info "Doing analysis"
-        limit   = settings.h5_filesize_limit
-        h5size  = 0
-        h5files = []
-        i = 1
-        while i <= length(new_files)
-            compress = [i]
-            h5size   = stat(new_files[i]).size/1024^2
-            i += 1
-            if i <= length(new_files)
-                while h5size <= limit && i <= length(new_files)
-                    h5size += stat(new_files[i]).size/1024^2
-                    push!(compress, i)
-                    i += 1
-                end
-            end
-            push!(h5files, compress)
-        end
-
-        i = 1
-        p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
-        while i <= length(h5files)
-            data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
-            if calibration_data
-                writeh5(joinpath(conv_data_dir, "calibration-data_" * split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
-            else
-                writeh5(joinpath(conv_data_dir, split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
-            end
-            
-            ProgressMeter.next!(p)
-            i += 1
-        end
+        @info "Doing post-processing"
+        struck_to_hdf5(settings, new_files; calibration_data=calibration_data)
     end
 
     if settings.delete_dat
@@ -174,3 +151,41 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     cd(original_dir)
 end
 export take_struck_data
+
+"""
+Reads in the created .dat files and creates .hdf5 files based on them
+"""
+function struck_to_hdf5(settings::NamedTuple, new_files::Array{String,1}; calibration_data::Bool=false)
+    limit   = settings.h5_filesize_limit
+    h5size  = 0
+    h5files = []
+    i = 1
+    while i <= length(new_files)
+        compress = [i]
+        h5size   = stat(new_files[i]).size/1024^2
+        i += 1
+        if i <= length(new_files)
+            while h5size <= limit && i <= length(new_files)
+                h5size += stat(new_files[i]).size/1024^2
+                push!(compress, i)
+                i += 1
+            end
+        end
+        push!(h5files, compress)
+    end
+
+    i = 1
+    p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(new_files))*" files to "*string(length(h5files))*" HDF5...", 50)
+    while i <= length(h5files)
+        data = read_data_from_struck(new_files[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
+        if calibration_data
+            writeh5(joinpath(conv_data_dir, "calibration-data_" * split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
+        else
+            writeh5(joinpath(conv_data_dir, split(basename(new_files[h5files[i][1]]), ".dat")[1] * ".h5"), data)
+        end
+        
+        ProgressMeter.next!(p)
+        i += 1
+    end
+end
+export struck_to_hdf5
