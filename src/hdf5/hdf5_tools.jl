@@ -10,7 +10,7 @@ Read *.dat struck data file and stores it as HDF5 (LegendHDF5IO formatting). Arr
 - `nevents::Int`: Number of events to read in. Default: all events.
 ...
 """
-function struck_to_h5(filename::String; conv_data_dir="../conv_data/")
+function struck_to_h5(filename::AbstractString; conv_data_dir::AbstractString="../conv_data/")
     if !isfile(filename)
         return "File does not exist: "*filename
     end
@@ -38,7 +38,7 @@ function struck_to_h5(filename::String; conv_data_dir="../conv_data/")
     end
 end
 
-function struck_to_h5(filenames; conv_data_dir="../conv_data/")
+function struck_to_h5(filenames::Array{AbstractString,1}; conv_data_dir::AbstractString="../conv_data/")
     for filename in filenames
         if !isfile(filename)
             return "File does not exist: "*filename
@@ -75,15 +75,56 @@ end
 export struck_to_h5
 
 
+"""
+Reads in .dat files recorded using a PENScintAnalysis settings tuple and
+creates .hdf5 files based on them
 
-function readh5(filename::String)
+Additionally, allows splitting of .h5 files to limit their filesize and
+takes care of calibration_data, coincidence_interval, filter_faulty_events
+"""
+function struck_to_h5(filenames::Array{AbstractString,1}, settings::NamedTuple; conv_data_dir::AbstractString="../conv_data/", calibration_data::Bool=false)
+    limit   = settings.h5_filesize_limit
+    h5size  = 0
+    h5files = AbstractString[]
+    i = 1
+    while i <= length(filenames)
+        compress = [i]
+        h5size   = stat(filenames[i]).size/1024^2
+        i += 1
+        if i <= length(filenames)
+            while h5size <= limit && i <= length(filenames)
+                h5size += stat(filenames[i]).size/1024^2
+                push!(compress, i)
+                i += 1
+            end
+        end
+        push!(h5files, compress)
+    end
+
+    i = 1
+    p = ProgressMeter.Progress(length(h5files), 1, "Converting "*string(length(filenames))*" files to "*string(length(h5files))*" HDF5...", 50)
+    while i <= length(h5files)
+        data = read_data_from_struck(filenames[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
+        if calibration_data
+            writeh5(joinpath(conv_data_dir, "calibration-data_" * split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"), data)
+        else
+            writeh5(joinpath(conv_data_dir, split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"), data)
+        end
+        
+        ProgressMeter.next!(p)
+        i += 1
+    end
+end
+
+
+function readh5(filename::AbstractString)
     HDF5.h5open(filename, "r") do h5f
         LegendHDF5IO.readdata( h5f, "data")
     end
 end
 export readh5
 
-function writeh5(filename::String, typed_table)
+function writeh5(filename::AbstractString, typed_table)
     HDF5.h5open(filename, "w") do h5f
         LegendHDF5IO.writedata( h5f, "data", typed_table)
     end
@@ -118,7 +159,7 @@ Retruns `names` of the subfiles, the number of pulses `nevents` and the `substru
 
 ...
 """
-function get_h5_info_old(filename::String)
+function get_h5_info_old(filename::AbstractString)
     h5open(filename) do h5f
         info = Dict()
         info["names"]        = names(h5f)
@@ -148,7 +189,7 @@ Reads the outdated dataformat. Outdated means non-LegendHDF5IO compatible.
 
 ...
 """
-function read_old_h5_structure(filename::String; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
+function read_old_h5_structure(filename::AbstractString; nevents=typemax(Int), nsubfiles=typemax(Int), subfiles=[], chids=[])
     h5open(filename, "r") do h5f
         tt = TypedTables.Table(
             chid = Int32[],
