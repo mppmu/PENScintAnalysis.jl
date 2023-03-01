@@ -90,6 +90,20 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             if process_running(process)
                 @warn "Process timeout. " * ((n_try <= 2) ? "Trying again" : "Stopping. See below error message")
                 kill(process)
+
+                sleep(1)
+
+                # Delete files which might have been created in the mean-time
+                files = Glob.glob(joinpath(settings.output_basename * "*.dat"))
+                j = 1
+                while j <= length(files)
+                    file_change_time = stat(files[j]).mtime
+                    if file_change_time - t_check > 0
+                        rm(files[j])
+                        @info "Deleting falsely created file " * string(files[j])
+                    end
+                    j += 1
+                end
                 
                 n_try += 1
             else

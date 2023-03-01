@@ -89,10 +89,8 @@ function read_data_from_struck(filenames::Vector{String}; filter_faulty_events=f
 
         for unsorted in reader
             nchunks += 1
-            @info "Chunk " * string(nchunks)
             sorted = SIS3316Digitizers.sortevents(unsorted)
             #return sorted
-            @info "Chunk " * string(nchunks) * " sorted"
             for evt in eachindex(sorted)
                 channels = collect(keys(sorted[evt]))
                 for ch in channels
@@ -103,14 +101,11 @@ function read_data_from_struck(filenames::Vector{String}; filter_faulty_events=f
                 end
             end
             empty!(sorted)
-            @info "Wrote chunk " * string(nchunks)
         end
         close(input)
-        @info "Closed chunk " * string(nchunks)
     end
     
     if filter_faulty_events
-        @info "Filtering faulty events"
         t = Float64[]
         s = Array{Int32,1}[]
         c = Int32[]
