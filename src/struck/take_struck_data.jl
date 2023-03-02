@@ -62,24 +62,41 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     
     new_files = String[]
     i = 1
-    timeout_string = "Futures timed out after [5000 milliseconds]"
+
+    # Following strings allow us to identify both timeouts (script does not finish, Struck not responding) and faulty .dat files (originating from UDP network errors)
+    timeout_err_string = "Futures timed out after [5000 milliseconds]" 
+    network_err_string = "try no 2"
 
     while i <= settings.number_of_measurements && !stop_taking()
         # Total tries: 5
-        n_try = 0
-        while n_try <= 4
-            @info "Chunk " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try + 1) * "/5)"
+        n_try = 1
+        while n_try <= 5
+            @info "Chunk " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/5)"
 
             # Maximum time we expect the script to run: 1.5*measurement_time; after that, throw exception
 
             t_start = now()
-            process = run(`./pmt_daq_dont_move.scala`, wait=false)
+            
+            p_stdout = IOBuffer()
+
+            @info pwd()
+            cmd = pipeline(`./pmt_daq_dont_move.scala`; stdout=p_stdout)
+            process = run(cmd, wait=false)
+
+            #process = run(`./pmt_daq_dont_move.scala`, wait=false)
             while (now() - t_start).value < 1.5*1000*settings.measurement_time
-                timeout_detected = occursin(timeout_string, read(process, String))
+                p_out = String(take!(p_stdout))
+                @debug "Process output"
+                @debug p_out
+
+                timeout_detected = occursin(timeout_err_string, p_out)
+                net_err_detected = occursin(network_err_string, p_out)
 		
-                if process_exited(process) || timeout_detected
+                if process_exited(process) || timeout_detected || net_err_detected
                     if timeout_detected
                         @warn "Script timed out. Attempting restart"
+                    elseif net_err_detected
+                        @warn "Network error. Retry chunk retrieval to avoid faulty .dat-file"
                     end
                     break
                 end
@@ -88,7 +105,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
 
             # If process finised within time, no retries neccessary
             if process_running(process)
-                @warn "Process timeout. " * ((n_try <= 2) ? "Trying again" : "Stopping. See below error message")
+                @warn "Process timed out or failed due to network error. " * ((n_try == 5) ? "Trying again" : "Stopping")
                 kill(process)
 
                 sleep(1)
@@ -112,7 +129,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         end
 
         # n_try = 5 => previous 3 tries failed
-        if n_try == 5
+        if n_try == 6
             rm("pmt_daq_dont_move.scala")
             cd(original_dir)
 
