@@ -64,22 +64,23 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     i = 1
 
     # Following strings allow us to identify both timeouts (script does not finish, Struck not responding) and faulty .dat files (originating from UDP network errors)
-    timeout_err_string = "Futures timed out after [5000 milliseconds]" 
-    network_err_string = "try no 2"
+    # example error: 
+    struck_init_err_string = "Futures timed out after [5000 milliseconds]" 
+    
+    # example error: 16:44:04.0607 [DEBUG] [daqcore-akka.actor.default-dispatcher-20] d.d.SIS3316$SIS3316Impl: Trying again to read 0x00001f48 bytes of event data from bank 1, channel 4, starting at 0x00000000, try no 2
+    struck_net_err_string = "try no 2"
 
     while i <= settings.number_of_measurements && !stop_taking()
         # Total tries: 5
         n_try = 1
-        while n_try <= 5
-            @info "Chunk " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/5)"
+        while n_try <= 10
+            @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/5)"
 
             # Maximum time we expect the script to run: 1.5*measurement_time; after that, throw exception
-
             t_start = now()
             
             p_stdout = IOBuffer()
 
-            @info pwd()
             cmd = pipeline(`./pmt_daq_dont_move.scala`; stdout=p_stdout)
             process = run(cmd, wait=false)
 
@@ -89,24 +90,32 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
                 @debug "Process output"
                 @debug p_out
 
-                timeout_detected = occursin(timeout_err_string, p_out)
-                net_err_detected = occursin(network_err_string, p_out)
+                struck_init_err_detected = occursin(struck_init_err_string, p_out)
+                struck_net_err_detected = occursin(struck_net_err_string, p_out)
 		
-                if process_exited(process) || timeout_detected || net_err_detected
-                    if timeout_detected
-                        @warn "Script timed out. Attempting restart"
-                    elseif net_err_detected
-                        @warn "Network error. Retry chunk retrieval to avoid faulty .dat-file"
+                if process_exited(process) || struck_init_err_detected || struck_net_err_detected
+                    if struck_init_err_detected
+                        @warn "Struck initialization error. Timeout after 5s"
+                    elseif struck_net_err_detected
+                        @warn "Network transfer error. Redo measurement to avoid faulty .dat-file"
                     end
+                    
                     break
                 end
-                sleep(2)
+                sleep(1)
             end
 
             # If process finised within time, no retries neccessary
             if process_running(process)
-                @warn "Process timed out or failed due to network error. " * ((n_try == 5) ? "Trying again" : "Stopping")
+                @warn "Killing still running measurement. " * ((n_try <= 10) ? "Trying again" : "Stopping")
                 kill(process)
+
+                # maybe instead just a sleep(1)?
+                while process_running(process)
+                    @info "Repeatedly killing process"
+                    kill(process)
+                    sleep(1)
+                end
 
                 sleep(1)
 
@@ -148,7 +157,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             if file_change_time - t_check > 0
                 new_file = files[j]
                 push!(new_files, new_file)
-                @info "Chunk " * string(i) * " - Received (" * new_file * ")"
+                @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Saved (" * new_file * ")"
                 t_check = file_change_time
                 break
             end
