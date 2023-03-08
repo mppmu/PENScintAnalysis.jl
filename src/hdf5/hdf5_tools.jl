@@ -94,7 +94,7 @@ function struck_to_h5(filenames::Vector{String}, settings::NamedTuple; conv_data
     h5files = Array{Vector,1}()
     i = 1
     while i <= length(filenames)
-        @info "Converting " * filenames[i]
+        #@info "Converting " * filenames[i]
         compress = [i]
         h5size   = stat(filenames[i]).size/1024^2
         i += 1
@@ -113,25 +113,16 @@ function struck_to_h5(filenames::Vector{String}, settings::NamedTuple; conv_data
 
     written_files = String[]
     while i <= length(h5files)
-        @info filenames[h5files[i]]
         output_file_basename = split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"
+        output_file_path = joinpath(conv_data_dir, (calibration_data ? "calibration-data_" : "") * output_file_basename)
+
         p = ProgressMeter.Progress(length(h5files[i]), 1, "Chunk: Converting "*string(length(h5files[i]))*" files to HDF5 ["*output_file_basename*"]", 50)
 
         data = read_data_from_struck(filenames[h5files[i]], filter_faulty_events=settings.filter_faulty_events, coincidence_interval = settings.coincidence_interval)
-        # "cw" read and write, create file if not existing, do not truncate
-        # "w" read and write, create a new file (destroys any existing contents)
-        # https://juliaio.github.io/HDF5.jl/stable/interface/files/#HDF5.h5open
-        if calibration_data
-            filename = joinpath(conv_data_dir, "calibration-data_" * output_file_basename)
-            writeh5(filename, data)
-            chmod(filename, 0o775)
-            push!(written_files, filename)
-        else
-            @info "Writing to " * string(joinpath(conv_data_dir, output_file_basename))
-            filename = joinpath(conv_data_dir, output_file_basename)
-            writeh5(written_files, data)
-            push!(written_files, filename)
-        end
+        
+        writeh5(output_file_path, data)
+        chmod(output_file_path, 0o775)
+        push!(written_files, output_file_path)
 
         ProgressMeter.next!(p)
         
@@ -150,8 +141,8 @@ function readh5(filename::AbstractString)
 end
 export readh5
 
-function writeh5(filename::AbstractString, typed_table, mode::String = "w")
-    HDF5.h5open(filename, mode) do h5f
+function writeh5(filename::AbstractString, typed_table)
+    HDF5.h5open(filename, "w") do h5f
         LegendHDF5IO.writedata( h5f, "data", typed_table)
     end
 end

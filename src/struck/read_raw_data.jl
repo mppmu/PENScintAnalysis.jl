@@ -80,7 +80,6 @@ function read_data_from_struck(filenames::Vector{String}; filter_faulty_events=f
     energy  = []
     
     for filename in filenames
-        @info filename
         input = open(CompressedStreams.CompressedFile(filename))
         reader = SIS3316Digitizers.eachchunk(input, SIS3316Digitizers.UnsortedEvents) 
 

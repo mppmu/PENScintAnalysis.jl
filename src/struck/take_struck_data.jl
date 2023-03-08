@@ -34,7 +34,7 @@ stop_taking is a function that will be called beforeF any iteration. If it retur
 ...
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, callback=false, stop_taking = ()->false)
-    @info("Updated: 2023-03-01")
+    @info("Updated: 2023-03-08")
     !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o775) : "Path exists"
     
     !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o775) : "Path exists"
@@ -77,7 +77,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         n_try = 1
         filename = ""
 
-        while n_try <= 10
+        while n_try <= 10 && filename == ""
             @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/10)"
 
             # Maximum time we expect the script to run: 1.5*measurement_time; after that, throw exception
@@ -115,7 +115,6 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
 
             # Get potentially created files
             files = Glob.glob(joinpath(settings.output_basename * "*.dat"))
-            @info files
 
             # If process finished within time, no retries neccessary
             if process_running(process)
@@ -139,7 +138,12 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
                 end
                 
                 n_try += 1
-            else # Make sure the created file is not corrupted
+
+                # Wait some more time before next try
+                sleep(10)
+            else
+                # Make sure the created file is not corrupted
+
                 # Get filename; assume only one created file
                 j = 1
                 while j <= length(files)
@@ -154,22 +158,29 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
                 end
 
                 # Check if there was a file created, and check if corrupted
-                @info "Filename " * filename
                 if filename != ""
-                    input = open(CompressedStreams.CompressedFile(filename))
-                    try
-                        SIS3316Digitizers.read_data(input)
-                        close(input)
-                    catch e
-                        #global input
-                        #global filename
-                        #global retry = true
-
-                        @warn "Detected corrupted file. Deleting and attempting to do measurment"
-                        close(input)
+                    if stat(filename).size == 0
+                        @warn "Detected empty file. Redo measurment"
                         rm(filename)
-
                         n_try += 1
+                        filename = ""
+                    else
+                        input = open(CompressedStreams.CompressedFile(filename))
+                        try
+                            SIS3316Digitizers.read_data(input)
+                            close(input)
+                        catch e
+                            #global input
+                            #global filename
+                            #global retry = true
+
+                            @warn "Detected corrupted file. Redo measurment"
+                            close(input)
+                            rm(filename)
+
+                            n_try += 1
+                            filename = ""
+                        end
                     end
                 else
                     @error "Expected file not created by measurement. Aborting."
@@ -186,9 +197,6 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             @error "Process timed out"
             throw(ErrorException("Measurement failed. Make sure the fadc is running, you're running the code within the legend(-base) container on glab-pc01 and correct permissions are set on the directory. If you can ping the struck and think everything is set up correctly, do a test using struck-test-gui. Execute that on a Linux host with Desktop functionality connecting via ssh -X gelab@gelab-pc.. and check connection as well as Test in the sub-menu. This helps to spin up a Struck if a restart alone did not help"))            
         end
-
-        # Update list of new files after each measurement for callback usage
-        files = Glob.glob(joinpath(settings.output_basename * "*.dat"))
 
         # Assumption: Only one file will be added per execution. Otherwise we'd have to sort files by file_change_time and get all items with file_change_time > t_check
         @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Saved (" * filename * ")"
