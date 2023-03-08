@@ -20,10 +20,11 @@ function struck_to_h5(filename::AbstractString; conv_data_dir::AbstractString=".
         return "Wrong file format: "*filename
     end
     
-    if isfile(conv_data_dir*real_filename*".h5")
+    output_file = conv_data_dir*real_filename*".h5"
+    if isfile(output_file)
         ans = getUserInput(String, "File exists. Do you want to overwrite? Y/n");
         if ans == "Y" || ans == "yes" || ans == "y" || ans == ""
-            rm(conv_data_dir*real_filename*".h5");
+            rm(coutput_file);
         else 
             return "Please enter a different filename then."
         end
@@ -33,9 +34,11 @@ function struck_to_h5(filename::AbstractString; conv_data_dir::AbstractString=".
     end
     dset = read_data_from_struck(filename)
     
-    HDF5.h5open(conv_data_dir*real_filename*".h5", "w") do h5f
+    HDF5.h5open(output_file, "w") do h5f
         LegendHDF5IO.writedata( h5f, "data", dset)
     end
+
+    chmod(output_file, 0o775)
 end
 
 function struck_to_h5(filenames::Vector{String}; conv_data_dir::AbstractString="../conv_data/")
@@ -53,7 +56,9 @@ function struck_to_h5(filenames::Vector{String}; conv_data_dir::AbstractString="
     if length(split(basename(filenames[1]), ".dat")) >= 2
         real_filename = split(basename(filenames[1]), ".dat")[1]
     end
-    if isfile(conv_data_dir*real_filename*".h5")
+
+    output_file = conv_data_dir*real_filename*".h5"
+    if isfile(output_file)
         ans = getUserInput(String, "File exists. Do you want to overwrite? Y/n");
         if ans == "Y" || ans == "yes" || ans == "y" || ans == ""
             rm(conv_data_dir*real_filename*".h5");
@@ -68,9 +73,11 @@ function struck_to_h5(filenames::Vector{String}; conv_data_dir::AbstractString="
     
     dset = read_data_from_struck(filenames)
     
-    HDF5.h5open(conv_data_dir*real_filename*".h5", "w") do h5f
+    HDF5.h5open(output_file, "w") do h5f
         LegendHDF5IO.writedata( h5f, "data", dset)#Table(chid=dset.chid, evt_t=dset.evt_t, samples=ArraysOfArrays.VectorOfArrays(dset.samples)))
     end
+
+    chmod(output_file, 0o775)
 end
 
 
@@ -104,6 +111,7 @@ function struck_to_h5(filenames::Vector{String}, settings::NamedTuple; conv_data
     i = 1
     @info "Total: Converting "*string(length(filenames))*" files to "*string(length(h5files))*" HDF5..."
 
+    written_files = String[]
     while i <= length(h5files)
         @info filenames[h5files[i]]
         output_file_basename = split(basename(filenames[h5files[i][1]]), ".dat")[1] * ".h5"
@@ -114,16 +122,23 @@ function struck_to_h5(filenames::Vector{String}, settings::NamedTuple; conv_data
         # "w" read and write, create a new file (destroys any existing contents)
         # https://juliaio.github.io/HDF5.jl/stable/interface/files/#HDF5.h5open
         if calibration_data
-            writeh5(joinpath(conv_data_dir, "calibration-data_" * output_file_basename), data)
+            filename = joinpath(conv_data_dir, "calibration-data_" * output_file_basename)
+            writeh5(filename, data)
+            chmod(filename, 0o775)
+            push!(written_files, filename)
         else
             @info "Writing to " * string(joinpath(conv_data_dir, output_file_basename))
-            writeh5(joinpath(conv_data_dir, output_file_basename), data)
+            filename = joinpath(conv_data_dir, output_file_basename)
+            writeh5(written_files, data)
+            push!(written_files, filename)
         end
 
         ProgressMeter.next!(p)
         
         i += 1
     end
+
+    written_files
 end
 export struck_to_h5
 
