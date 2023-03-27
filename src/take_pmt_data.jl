@@ -32,7 +32,7 @@ function take_pmt_data(hv_settings::Dict, adc_settings::NamedTuple; callback = (
         @info "Ramping up PMT HV"
 
         if callback isa Function
-            ms = measurement_state(STATE_HV_RAMP_UP, "Ramping up voltages of channels " * join(keys(hv_settings["channels"], ", ")))
+            ms = measurement_state(STATE_HV_RAMP_UP, "Ramping up voltages of channels " * join(collect(keys(hv_settings["channels"])), ", "))
             ms.opt = hv_settings["channels"]
             callback(ms)
         end
@@ -87,8 +87,8 @@ function take_pmt_data(hv_settings::Dict, adc_settings::NamedTuple; callback = (
         @info "Ramping down PMT voltages to 0V"
 
         if callback isa Function
-            ms = measurement_state(STATE_HV_RAMP_DOWN, "Ramping down voltages of channels " * join(keys(hv_settings["channels"], ", ")))
-            ms.opt = keys(hv_settings["channels"])
+            ms = measurement_state(STATE_HV_RAMP_DOWN, "Ramping down voltages of channels " * join(collect(keys(hv_settings["channels"])), ", "))
+            ms.opt = collect(keys(hv_settings["channels"]))
             callback(ms)
         end
 

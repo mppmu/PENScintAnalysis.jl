@@ -28,12 +28,12 @@ Representation of a new measurement state with status information and the receiv
 - data, nothing or a TypedTables.Table
 """
 mutable struct measurement_state
-    status::Int64
+    status::PMT_MEASUREMENT_STATES
     message::String
     data::TypedTables.Table
     opt # optional data, potentially undefined
     
-    function measurement_state(status::Int64, message::String)
+    function measurement_state(status::PMT_MEASUREMENT_STATES, message::String)
         ms = new()
         ms.status = status
         ms.message = message
@@ -52,7 +52,7 @@ function Base.getproperty(ms::measurement_state, s::Symbol)
             return nothing
         end
     else
-        error("unknown property $s")
+        return getfield(ms, s)
     end
 end
 
