@@ -45,12 +45,8 @@ export measurement_state
 
 # Modify measurement_state.data to return nothing when data is left undefined after initialization
 function Base.getproperty(ms::measurement_state, s::Symbol)
-    if s == :data
-        if isdefined(ms, :data)
-            return ms.data
-        else
-            return nothing
-        end
+    if (s == :data || s == :opt) && !isdefined(ms, s)
+        return nothing
     else
         return getfield(ms, s)
     end
@@ -66,6 +62,12 @@ stop_taking is a function that will be called beforeF any iteration. If it retur
 ...
 # Arguments
 - `settings::NamedTuple`: NamedTuple containing all settings. See Example.
+- `callback::Function`: (optional) function that is called whenever the measurement state changes
+- `stop_taking::Function`: (optional) function that will cause following measurements to be stopped if it returns true
+- `mode_debug::Bool`: (optional) boolean, default false; if true, will show all log messages from the called Scala code
+
+# Returns (on success)
+- a list of the .HD5 files created (if skip_post_processing=false)
 
 # Example settings
 - `settings = (fadc = "gelab-fadc08",` 
@@ -91,7 +93,7 @@ stop_taking is a function that will be called beforeF any iteration. If it retur
 ...
 """
 function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, callback=false, stop_taking = ()->false, mode_debug=false)
-    @info("Updated: 2023-03-27")
+    @info("Updated: 2023-03-31")
     !isdir(settings.data_dir) ? mkpath(settings.data_dir, mode = 0o775) : "Path exists"
     
     !isdir(settings.conv_data_dir) ? mkpath(settings.conv_data_dir, mode = 0o775) : "Path exists"
@@ -147,7 +149,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
         while n_try <= max_tries && filename == "" && !stop_taking()
             struck_reached = false
 
-            @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/10)"
+            @info "Measurement " * string(i) * "/" * string(settings.number_of_measurements) * " - Receiving (Try " * string(n_try) * "/" * string(max_tries) * ")"
 
             if callback isa Function
                 ms = measurement_state(STATE_PART_STARTED, "Started data-taking")
@@ -164,7 +166,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
             process = run(cmd, wait=false)
 
             # Check if the process finishes/errors during timeout interval
-            while (now(UTC) - t_start).value < 1.5*1000*settings.measurement_time
+            while (now(UTC) - t_start).value < 2*1000*settings.measurement_time
                 p_out = String(take!(p_stdout))
 
                 # With debugging on, show process output
@@ -300,7 +302,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
                     end
                 else
                     @error "Expected file not created by measurement. Aborting."
-                    n_try = 11
+                    n_try = max_tries+1
                 end
             end
         end
@@ -345,6 +347,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     #chmod(pwd(), 0o775, recursive=true)
     rm("pmt_daq_dont_move.scala")
     
+    written_files = []
     if !settings.skip_post_processing
         @info "Doing post-processing"
         written_files = struck_to_h5(new_files, settings; conv_data_dir=conv_data_dir, calibration_data=calibration_data)
@@ -365,5 +368,7 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
     end
     
     cd(original_dir)
+
+    return written_files
 end
 export take_struck_data
