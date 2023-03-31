@@ -325,6 +325,11 @@ function take_struck_data(settings::NamedTuple; calibration_data::Bool=false, ca
                 callback(ms)
             end
 
+            # Write received data nevertheless
+            if length(written_files) > 0
+                struck_to_h5(new_files, settings; conv_data_dir=conv_data_dir, calibration_data=calibration_data)
+            end
+
             throw(ErrorException(err_string * ". Measurement failed. Make sure the fadc is running, you're running the code within the legend(-base) container on gelab-pcXX and correct permissions are set on the directory. If you can ping the struck and think everything is set up correctly, do a test using sis3316-test-gui. Execute that on a Linux host with Desktop functionality connecting to gelab-pcXX via ssh -X gelab@gelab-pcXX and check connection + execute test in the sub-menu. This helps to spin up a Struck if a restart alone did not help"))            
         end
 
