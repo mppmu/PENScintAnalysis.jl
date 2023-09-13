@@ -33,6 +33,7 @@ import TypedTables
 import UnsafeArrays
 # import PENBBControl will be replaced
 
+using HTTP: WebSockets
 
 include("6pmt_util/pmt_tools.jl")
 include("algorithms/algorithms.jl")

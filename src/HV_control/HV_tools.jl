@@ -50,11 +50,11 @@ function get_measured_HV(ip, login_payload)
     results = []
     response = []
     HTTP.WebSockets.open(ip) do ws
-        write(ws, login_payload)
-        d = JSON.parse(String(readavailable(ws)))
+        WebSockets.send(ws, login_payload)
+        d = JSON.parse(String(WebSockets.receive(ws)))
         session_id = d["i"]
-        write(ws, _construct_request(session_id, "getItem", "Status.voltageMeasure"))
-        d = JSON.parse(String(readavailable(ws)))
+        WebSockets.send(ws, _construct_request(session_id, "getItem", "Status.voltageMeasure"))
+        d = JSON.parse(String(WebSockets.receive(ws)))
         push!(results, d)
     end;
     for resp in results[1][1]["c"]
@@ -215,17 +215,17 @@ Got to voltage for one channel.
 function voltage_goto(ip::String, channel::Int, value::Real, login_payload)
     results = []
     HTTP.WebSockets.open(ip) do ws
-           write(ws, login_payload)
-           d = JSON.parse(String(readavailable(ws)))
+           WebSockets.send(ws, login_payload)
+           d = JSON.parse(String(WebSockets.receive(ws)))
            session_id = d["i"]
            #@show session_id
-           write(ws, _construct_request(session_id, "setItem", "Control.voltageSet", "$channel", "$value", "V"))
-           d = JSON.parse(String(readavailable(ws)))
+           WebSockets.send(ws, _construct_request(session_id, "setItem", "Control.voltageSet", "$channel", "$value", "V"))
+           d = JSON.parse(String(WebSockets.receive(ws)))
            push!(results, d)
            sleep(1)
            @info "Channel $channel: set Voltage: $value V\nstarting ramp ..."
-           write(ws, _construct_request(session_id, "setItem", "Control.on", "$channel", "1", ""))
-           d = JSON.parse(String(readavailable(ws)))
+           WebSockets.send(ws, _construct_request(session_id, "setItem", "Control.on", "$channel", "1", ""))
+           d = JSON.parse(String(WebSockets.receive(ws)))
            push!(results, d)
     end;
 end
