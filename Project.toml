@@ -6,7 +6,6 @@ version = "0.1.0"
 [deps]
 ArraysOfArrays = "65a8f2f4-9b39-5baf-92e2-a9cc46fdf018"
 BitOperations = "e1e0eea2-bc69-5bf6-8574-13634873a17c"
-Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
 CompressedStreams = "32c0f0f5-bc68-477e-9735-9d432b70bbf7"
 DSP = "717857b8-e6f2-59f4-9121-6e50c889abd2"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

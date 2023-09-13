@@ -5,9 +5,6 @@ module PENScintAnalysis
 import ArraysOfArrays
 import Base.Threads
 import BitOperations
-import Compat
-import Compat.Markdown
-import Compat: axes
 import CompressedStreams
 import DataFrames
 import Dates
